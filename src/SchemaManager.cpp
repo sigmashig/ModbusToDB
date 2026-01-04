@@ -28,98 +28,83 @@ SchemaManager::SchemaManager(DatabaseManager &dbManager)
     : dbManager(dbManager) {}
 
 bool SchemaManager::ensureTableExists(
-    int deviceId, const std::vector<RegisterDefinition> &registers) {
-  std::string tableName = getTableName(deviceId);
+    int /* deviceId */,
+    const std::vector<RegisterDefinition> & /* registers */) {
+  constexpr const char *TABLE_NAME = "modbus_data";
 
-  if (dbManager.tableExists(tableName)) {
-    // Table exists, check if we need to add columns
-    return addMissingColumns(deviceId, registers);
+  if (dbManager.tableExists(TABLE_NAME)) {
+    // Table exists, ensure indexes are created
+    return ensureIndexesExist();
   }
 
-  // Create new table
+  // Create normalized table structure
   pqxx::work txn(dbManager.getConnection());
   std::ostringstream query;
-  query << "CREATE TABLE " << quoteIdentifier(tableName) << " (";
+  query << "CREATE TABLE " << quoteIdentifier(TABLE_NAME) << " (";
   query << "id SERIAL PRIMARY KEY";
+  query << ", device_id INTEGER NOT NULL";
   query << ", " << quoteIdentifier(TIMESTAMP_COLUMN_NAME)
         << " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP";
-
-  for (const auto &reg : registers) {
-    query << ", " << quoteIdentifier(reg.name) << " " << getColumnType(reg);
-  }
-
+  query << ", register_name VARCHAR(100) NOT NULL";
+  query << ", value DOUBLE PRECISION";
   query << ")";
   std::string queryStr = query.str();
   txn.exec(queryStr);
   txn.commit();
 
-  return true;
+  // Create indexes
+  return ensureIndexesExist();
 }
 
 bool SchemaManager::addMissingColumns(
-    int deviceId, const std::vector<RegisterDefinition> &registers) {
-  std::string tableName = getTableName(deviceId);
-  std::vector<std::string> existingColumns = getExistingColumns(tableName);
-
-  // Ensure timestamp column exists
-  if (!columnExists(tableName, TIMESTAMP_COLUMN_NAME)) {
-    pqxx::work txn(dbManager.getConnection());
-    std::ostringstream query;
-    query << "ALTER TABLE " << quoteIdentifier(tableName);
-    query << " ADD COLUMN " << quoteIdentifier(TIMESTAMP_COLUMN_NAME)
-          << " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP";
-
-    try {
-      txn.exec(query.str());
-      txn.commit();
-    } catch (const std::exception &e) {
-      std::cerr << "Error: Failed to add timestamp column to table "
-                << tableName << ": " << e.what() << std::endl;
-      return false;
-    }
-  }
-
-  for (const auto &reg : registers) {
-    if (!columnExists(tableName, reg.name)) {
-      pqxx::work txn(dbManager.getConnection());
-      std::ostringstream query;
-      query << "ALTER TABLE " << quoteIdentifier(tableName);
-      query << " ADD COLUMN " << quoteIdentifier(reg.name) << " "
-            << getColumnType(reg);
-
-      try {
-        txn.exec(query.str());
-        txn.commit();
-      } catch (const std::exception &e) {
-        std::cerr << "Error: Failed to add column " << reg.name << " to table "
-                  << tableName << ": " << e.what() << std::endl;
-        return false;
-      }
-    } else {
-      // Column exists, check if type needs to be altered
-      std::string currentType = getCurrentColumnType(tableName, reg.name);
-      std::string expectedType = getColumnType(reg);
-
-      if (needsColumnAlter(currentType, expectedType)) {
-        std::cout << "Column " << reg.name
-                  << " type mismatch. Current: " << currentType
-                  << ", Expected: " << expectedType
-                  << ". Altering column type..." << std::endl;
-
-        if (!alterColumnType(tableName, reg.name, expectedType)) {
-          std::cerr << "Error: Failed to alter column " << reg.name
-                    << " type in table " << tableName << std::endl;
-          return false;
-        }
-      }
-    }
-  }
-
-  return true;
+    int /* deviceId */,
+    const std::vector<RegisterDefinition> & /* registers */) {
+  // Not needed for normalized structure - all registers use same schema
+  // This method is kept for backward compatibility but does nothing
+  return ensureIndexesExist();
 }
 
-std::string SchemaManager::getTableName(int deviceId) const {
-  return "modbus_" + std::to_string(deviceId);
+std::string SchemaManager::getTableName(int /* deviceId */) const {
+  return "modbus_data";
+}
+
+bool SchemaManager::ensureIndexesExist() {
+  constexpr const char *TABLE_NAME = "modbus_data";
+
+  if (!dbManager.isConnected()) {
+    return false;
+  }
+
+  try {
+    pqxx::work txn(dbManager.getConnection());
+
+    // Index on device_id and timestamp for common queries
+    std::string idx1Query =
+        "CREATE INDEX IF NOT EXISTS idx_modbus_data_device_time "
+        "ON " +
+        quoteIdentifier(TABLE_NAME) + "(device_id, timestamp)";
+    txn.exec(idx1Query);
+
+    // Index on register_name and timestamp for register-specific queries
+    std::string idx2Query =
+        "CREATE INDEX IF NOT EXISTS idx_modbus_data_register_time "
+        "ON " +
+        quoteIdentifier(TABLE_NAME) + "(register_name, timestamp)";
+    txn.exec(idx2Query);
+
+    // Composite index for device + register + time queries
+    std::string idx3Query =
+        "CREATE INDEX IF NOT EXISTS idx_modbus_data_device_register_time "
+        "ON " +
+        quoteIdentifier(TABLE_NAME) + "(device_id, register_name, timestamp)";
+    txn.exec(idx3Query);
+
+    txn.commit();
+    return true;
+  } catch (const std::exception &e) {
+    std::cerr << "Error: Failed to create indexes: " << e.what() << std::endl;
+    return false;
+  }
 }
 
 std::string SchemaManager::getColumnType(const RegisterDefinition &reg) const {

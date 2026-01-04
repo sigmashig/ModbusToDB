@@ -5,8 +5,10 @@
 #include "RegisterResolver.h"
 #include "SchemaManager.h"
 #include <chrono>
+#include <cmath>
 #include <getopt.h>
 #include <iostream>
+#include <map>
 #include <pqxx/pqxx>
 #include <sstream>
 #include <string>
@@ -16,7 +18,6 @@
 namespace {
 constexpr const char *DEFAULT_CONFIG = "./config.json";
 constexpr int DEFAULT_DEVICE_ID = 1;
-constexpr const char *TIMESTAMP_COLUMN_NAME = "timestamp";
 constexpr int MAX_RETRIES = 3;
 constexpr int RETRY_DELAY_MS = 400;
 constexpr int READ_DELAY_MS = 400;
@@ -322,7 +323,7 @@ int main(int argc, char *argv[]) {
       return 1;
     }
 
-    // Insert data into database
+    // Insert data into database using normalized structure
     // Verify that processed values match registers (should be in same order)
     if (processedValues.size() != registers.size()) {
       std::cerr
@@ -332,18 +333,39 @@ int main(int argc, char *argv[]) {
       return 1;
     }
 
-    std::string tableName = "modbus_" + std::to_string(deviceId);
+    constexpr const char *TABLE_NAME = "modbus_data";
     pqxx::work txn(dbManager.getConnection());
 
-    std::ostringstream insertQuery;
-    insertQuery << "INSERT INTO " << quoteIdentifier(tableName) << " (";
-    insertQuery << quoteIdentifier(TIMESTAMP_COLUMN_NAME);
-
-    for (const auto &reg : registers) {
-      insertQuery << ", " << quoteIdentifier(reg.name);
+    // Get last values for each register to detect changes
+    std::map<std::string, double> lastValues;
+    try {
+      std::ostringstream lastValueQuery;
+      lastValueQuery
+          << "SELECT DISTINCT ON (register_name) register_name, value "
+          << "FROM " << quoteIdentifier(TABLE_NAME) << " "
+          << "WHERE device_id = " << deviceId << " "
+          << "ORDER BY register_name, timestamp DESC";
+      pqxx::result lastResult = txn.exec(lastValueQuery.str());
+      for (const auto &row : lastResult) {
+        if (!row[1].is_null()) {
+          lastValues[row[0].as<std::string>()] = row[1].as<double>();
+        }
+      }
+    } catch (const std::exception &e) {
+      // If table is empty or query fails, continue - we'll insert all values
+      if (verbose) {
+        std::cout << "Note: Could not fetch last values: " << e.what()
+                  << std::endl;
+      }
     }
 
-    insertQuery << ") VALUES (CURRENT_TIMESTAMP";
+    // Build batch insert for changed registers only
+    std::ostringstream insertQuery;
+    insertQuery << "INSERT INTO " << quoteIdentifier(TABLE_NAME)
+                << " (device_id, timestamp, register_name, value) VALUES ";
+
+    bool firstValue = true;
+    int insertedCount = 0;
 
     for (size_t i = 0; i < processedValues.size(); ++i) {
       // Verify address matches (safety check)
@@ -354,18 +376,51 @@ int main(int argc, char *argv[]) {
         return 1;
       }
 
-      insertQuery << ", " << txn.quote(processedValues[i].processedValue);
+      const std::string &registerName = processedValues[i].name;
+      double currentValue = processedValues[i].processedValue;
+
+      // Check if value changed (or doesn't exist in last values)
+      bool shouldInsert = true;
+      if (lastValues.find(registerName) != lastValues.end()) {
+        double lastValue = lastValues[registerName];
+        // Use small epsilon for floating point comparison
+        constexpr double EPSILON = 1e-9;
+        if (std::abs(currentValue - lastValue) < EPSILON) {
+          shouldInsert = false;
+        }
+      }
+
+      if (shouldInsert) {
+        if (!firstValue) {
+          insertQuery << ", ";
+        }
+        insertQuery << "(" << deviceId << ", CURRENT_TIMESTAMP, "
+                    << txn.quote(registerName) << ", "
+                    << txn.quote(currentValue) << ")";
+        firstValue = false;
+        insertedCount++;
+      }
     }
 
-    insertQuery << ")";
-
-    try {
-      txn.exec(insertQuery.str());
+    // Only execute insert if there are values to insert
+    if (insertedCount > 0) {
+      try {
+        txn.exec(insertQuery.str());
+        txn.commit();
+        if (verbose) {
+          std::cout << "Inserted " << insertedCount
+                    << " changed register value(s)" << std::endl;
+        }
+      } catch (const std::exception &e) {
+        std::cerr << "Error: Failed to insert data: " << e.what() << std::endl;
+        dbManager.disconnect();
+        return 1;
+      }
+    } else {
       txn.commit();
-    } catch (const std::exception &e) {
-      std::cerr << "Error: Failed to insert data: " << e.what() << std::endl;
-      dbManager.disconnect();
-      return 1;
+      if (verbose) {
+        std::cout << "No register values changed, skipping insert" << std::endl;
+      }
     }
 
     dbManager.disconnect();

@@ -17,6 +17,7 @@ public:
 
 private:
     std::string getTableName(int deviceId) const;
+    bool ensureIndexesExist();
     std::string getColumnType(const RegisterDefinition& reg) const;
     std::vector<std::string> getExistingColumns(const std::string& tableName);
     bool columnExists(const std::string& tableName, const std::string& columnName);
