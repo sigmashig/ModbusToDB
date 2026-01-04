@@ -1,0 +1,47 @@
+{
+  "database": {
+    "connection_string": "postgresql://user:password@localhost:5432/modbus_db"
+  },
+  "devices": [
+    {
+      "id": 1,
+      "connection": {
+        "port": "/dev/ttyUSB0",
+        "baud_rate": 9600,
+        "parity": "N",
+        "data_bits": 8,
+        "stop_bits": 1
+      },
+      "registers": [
+        {
+          "address": 540,
+          "name": "dcTemp",
+          "type": "int16",
+          "scale": 0.1,
+          "preprocessing": true
+        },
+        {
+          "address": 586,
+          "name": "batTemp",
+          "type": "int16",
+          "scale": 1,
+          "preprocessing": false
+        },
+        {
+          "address": 588,
+          "name": "SOC",
+          "type": "int16",
+          "scale": 1.0,
+          "preprocessing": false
+        },
+        {
+          "address": 534,
+          "name": "pvHistory",
+          "type": "int32",
+          "scale": 1.0,
+          "preprocessing": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "database": {
+    "connection_string": "postgresql://user:password@localhost:5432/modbus_db"
+  },
+  "devices": [
+    {
+      "id": 1,
+      "connection": {
+        "port": "/dev/ttyUSB0",
+        "baud_rate": 9600,
+        "parity": "N",
+        "data_bits": 8,
+        "stop_bits": 1
+      },
+      "registers": [
+        {
+          "address": 100,
+          "name": "temperature",
+          "type": "int16",
+          "scale": 0.1,
+          "preprocessing": false
+        },
+        {
+          "address": 101,
+          "name": "pressure",
+          "type": "int16",
+          "scale": 1.0,
+          "preprocessing": false
+        },
+        {
+          "address": 200,
+          "name": "flow_rate",
+          "type": "int32",
+          "scale": 0.01,
+          "preprocessing": false
+        },
+        {
+          "address": 300,
+          "name": "voltage",
+          "type": "float32",
+          "scale": 1.0,
+          "preprocessing": false
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "connection": {
+        "port": "/dev/ttyUSB1",
+        "baud_rate": 19200,
+        "parity": "E",
+        "data_bits": 8,
+        "stop_bits": 1
+      },
+      "registers": [
+        {
+          "address": 0,
+          "name": "status",
+          "type": "int16",
+          "scale": 1.0,
+          "preprocessing": false
+        }
+      ]
+    }
+  ]
+}
+
