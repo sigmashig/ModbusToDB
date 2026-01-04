@@ -98,12 +98,12 @@ _deps/json-build/clean:
 CMakeFiles/ModbusLogger.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModbusLogger.dir/build.make CMakeFiles/ModbusLogger.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModbusLogger.dir/build.make CMakeFiles/ModbusLogger.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/hdd/diskS/Igor/Projects/ModbusToDB/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8 "Built target ModbusLogger"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/hdd/diskS/Igor/Projects/ModbusToDB/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11 "Built target ModbusLogger"
 .PHONY : CMakeFiles/ModbusLogger.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/ModbusLogger.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /hdd/diskS/Igor/Projects/ModbusToDB/build/CMakeFiles 8
+	$(CMAKE_COMMAND) -E cmake_progress_start /hdd/diskS/Igor/Projects/ModbusToDB/build/CMakeFiles 11
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/ModbusLogger.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /hdd/diskS/Igor/Projects/ModbusToDB/build/CMakeFiles 0
 .PHONY : CMakeFiles/ModbusLogger.dir/rule

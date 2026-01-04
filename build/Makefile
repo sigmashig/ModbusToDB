@@ -198,6 +198,30 @@ src/ConfigParser.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModbusLogger.dir/build.make CMakeFiles/ModbusLogger.dir/src/ConfigParser.cpp.s
 .PHONY : src/ConfigParser.cpp.s
 
+src/DaemonManager.o: src/DaemonManager.cpp.o
+.PHONY : src/DaemonManager.o
+
+# target to build an object file
+src/DaemonManager.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModbusLogger.dir/build.make CMakeFiles/ModbusLogger.dir/src/DaemonManager.cpp.o
+.PHONY : src/DaemonManager.cpp.o
+
+src/DaemonManager.i: src/DaemonManager.cpp.i
+.PHONY : src/DaemonManager.i
+
+# target to preprocess a source file
+src/DaemonManager.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModbusLogger.dir/build.make CMakeFiles/ModbusLogger.dir/src/DaemonManager.cpp.i
+.PHONY : src/DaemonManager.cpp.i
+
+src/DaemonManager.s: src/DaemonManager.cpp.s
+.PHONY : src/DaemonManager.s
+
+# target to generate assembly for a file
+src/DaemonManager.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModbusLogger.dir/build.make CMakeFiles/ModbusLogger.dir/src/DaemonManager.cpp.s
+.PHONY : src/DaemonManager.cpp.s
+
 src/DataProcessor.o: src/DataProcessor.cpp.o
 .PHONY : src/DataProcessor.o
 
@@ -294,6 +318,54 @@ src/ModbusClient.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModbusLogger.dir/build.make CMakeFiles/ModbusLogger.dir/src/ModbusClient.cpp.s
 .PHONY : src/ModbusClient.cpp.s
 
+src/PeriodParser.o: src/PeriodParser.cpp.o
+.PHONY : src/PeriodParser.o
+
+# target to build an object file
+src/PeriodParser.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModbusLogger.dir/build.make CMakeFiles/ModbusLogger.dir/src/PeriodParser.cpp.o
+.PHONY : src/PeriodParser.cpp.o
+
+src/PeriodParser.i: src/PeriodParser.cpp.i
+.PHONY : src/PeriodParser.i
+
+# target to preprocess a source file
+src/PeriodParser.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModbusLogger.dir/build.make CMakeFiles/ModbusLogger.dir/src/PeriodParser.cpp.i
+.PHONY : src/PeriodParser.cpp.i
+
+src/PeriodParser.s: src/PeriodParser.cpp.s
+.PHONY : src/PeriodParser.s
+
+# target to generate assembly for a file
+src/PeriodParser.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModbusLogger.dir/build.make CMakeFiles/ModbusLogger.dir/src/PeriodParser.cpp.s
+.PHONY : src/PeriodParser.cpp.s
+
+src/PeriodicScheduler.o: src/PeriodicScheduler.cpp.o
+.PHONY : src/PeriodicScheduler.o
+
+# target to build an object file
+src/PeriodicScheduler.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModbusLogger.dir/build.make CMakeFiles/ModbusLogger.dir/src/PeriodicScheduler.cpp.o
+.PHONY : src/PeriodicScheduler.cpp.o
+
+src/PeriodicScheduler.i: src/PeriodicScheduler.cpp.i
+.PHONY : src/PeriodicScheduler.i
+
+# target to preprocess a source file
+src/PeriodicScheduler.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModbusLogger.dir/build.make CMakeFiles/ModbusLogger.dir/src/PeriodicScheduler.cpp.i
+.PHONY : src/PeriodicScheduler.cpp.i
+
+src/PeriodicScheduler.s: src/PeriodicScheduler.cpp.s
+.PHONY : src/PeriodicScheduler.s
+
+# target to generate assembly for a file
+src/PeriodicScheduler.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ModbusLogger.dir/build.make CMakeFiles/ModbusLogger.dir/src/PeriodicScheduler.cpp.s
+.PHONY : src/PeriodicScheduler.cpp.s
+
 src/RegisterResolver.o: src/RegisterResolver.cpp.o
 .PHONY : src/RegisterResolver.o
 
@@ -358,6 +430,9 @@ help:
 	@echo "... src/ConfigParser.o"
 	@echo "... src/ConfigParser.i"
 	@echo "... src/ConfigParser.s"
+	@echo "... src/DaemonManager.o"
+	@echo "... src/DaemonManager.i"
+	@echo "... src/DaemonManager.s"
 	@echo "... src/DataProcessor.o"
 	@echo "... src/DataProcessor.i"
 	@echo "... src/DataProcessor.s"
@@ -370,6 +445,12 @@ help:
 	@echo "... src/ModbusClient.o"
 	@echo "... src/ModbusClient.i"
 	@echo "... src/ModbusClient.s"
+	@echo "... src/PeriodParser.o"
+	@echo "... src/PeriodParser.i"
+	@echo "... src/PeriodParser.s"
+	@echo "... src/PeriodicScheduler.o"
+	@echo "... src/PeriodicScheduler.i"
+	@echo "... src/PeriodicScheduler.s"
 	@echo "... src/RegisterResolver.o"
 	@echo "... src/RegisterResolver.i"
 	@echo "... src/RegisterResolver.s"

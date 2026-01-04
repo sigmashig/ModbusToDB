@@ -50,6 +50,9 @@ set(SOURCES
     src/SchemaManager.cpp
     src/RegisterResolver.cpp
     src/DataProcessor.cpp
+    src/DaemonManager.cpp
+    src/PeriodicScheduler.cpp
+    src/PeriodParser.cpp
 )
 
 # Headers
@@ -61,6 +64,9 @@ set(HEADERS
     src/RegisterResolver.h
     src/DataProcessor.h
     src/Types.h
+    src/DaemonManager.h
+    src/PeriodicScheduler.h
+    src/PeriodParser.h
 )
 
 # Create executable

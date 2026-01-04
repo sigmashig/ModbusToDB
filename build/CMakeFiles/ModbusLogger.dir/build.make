@@ -167,6 +167,48 @@ CMakeFiles/ModbusLogger.dir/src/DataProcessor.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ModbusLogger.dir/src/DataProcessor.cpp.s"
 	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /hdd/diskS/Igor/Projects/ModbusToDB/src/DataProcessor.cpp -o CMakeFiles/ModbusLogger.dir/src/DataProcessor.cpp.s
 
+CMakeFiles/ModbusLogger.dir/src/DaemonManager.cpp.o: CMakeFiles/ModbusLogger.dir/flags.make
+CMakeFiles/ModbusLogger.dir/src/DaemonManager.cpp.o: ../src/DaemonManager.cpp
+CMakeFiles/ModbusLogger.dir/src/DaemonManager.cpp.o: CMakeFiles/ModbusLogger.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/hdd/diskS/Igor/Projects/ModbusToDB/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/ModbusLogger.dir/src/DaemonManager.cpp.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/ModbusLogger.dir/src/DaemonManager.cpp.o -MF CMakeFiles/ModbusLogger.dir/src/DaemonManager.cpp.o.d -o CMakeFiles/ModbusLogger.dir/src/DaemonManager.cpp.o -c /hdd/diskS/Igor/Projects/ModbusToDB/src/DaemonManager.cpp
+
+CMakeFiles/ModbusLogger.dir/src/DaemonManager.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ModbusLogger.dir/src/DaemonManager.cpp.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /hdd/diskS/Igor/Projects/ModbusToDB/src/DaemonManager.cpp > CMakeFiles/ModbusLogger.dir/src/DaemonManager.cpp.i
+
+CMakeFiles/ModbusLogger.dir/src/DaemonManager.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ModbusLogger.dir/src/DaemonManager.cpp.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /hdd/diskS/Igor/Projects/ModbusToDB/src/DaemonManager.cpp -o CMakeFiles/ModbusLogger.dir/src/DaemonManager.cpp.s
+
+CMakeFiles/ModbusLogger.dir/src/PeriodicScheduler.cpp.o: CMakeFiles/ModbusLogger.dir/flags.make
+CMakeFiles/ModbusLogger.dir/src/PeriodicScheduler.cpp.o: ../src/PeriodicScheduler.cpp
+CMakeFiles/ModbusLogger.dir/src/PeriodicScheduler.cpp.o: CMakeFiles/ModbusLogger.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/hdd/diskS/Igor/Projects/ModbusToDB/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/ModbusLogger.dir/src/PeriodicScheduler.cpp.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/ModbusLogger.dir/src/PeriodicScheduler.cpp.o -MF CMakeFiles/ModbusLogger.dir/src/PeriodicScheduler.cpp.o.d -o CMakeFiles/ModbusLogger.dir/src/PeriodicScheduler.cpp.o -c /hdd/diskS/Igor/Projects/ModbusToDB/src/PeriodicScheduler.cpp
+
+CMakeFiles/ModbusLogger.dir/src/PeriodicScheduler.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ModbusLogger.dir/src/PeriodicScheduler.cpp.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /hdd/diskS/Igor/Projects/ModbusToDB/src/PeriodicScheduler.cpp > CMakeFiles/ModbusLogger.dir/src/PeriodicScheduler.cpp.i
+
+CMakeFiles/ModbusLogger.dir/src/PeriodicScheduler.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ModbusLogger.dir/src/PeriodicScheduler.cpp.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /hdd/diskS/Igor/Projects/ModbusToDB/src/PeriodicScheduler.cpp -o CMakeFiles/ModbusLogger.dir/src/PeriodicScheduler.cpp.s
+
+CMakeFiles/ModbusLogger.dir/src/PeriodParser.cpp.o: CMakeFiles/ModbusLogger.dir/flags.make
+CMakeFiles/ModbusLogger.dir/src/PeriodParser.cpp.o: ../src/PeriodParser.cpp
+CMakeFiles/ModbusLogger.dir/src/PeriodParser.cpp.o: CMakeFiles/ModbusLogger.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/hdd/diskS/Igor/Projects/ModbusToDB/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/ModbusLogger.dir/src/PeriodParser.cpp.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/ModbusLogger.dir/src/PeriodParser.cpp.o -MF CMakeFiles/ModbusLogger.dir/src/PeriodParser.cpp.o.d -o CMakeFiles/ModbusLogger.dir/src/PeriodParser.cpp.o -c /hdd/diskS/Igor/Projects/ModbusToDB/src/PeriodParser.cpp
+
+CMakeFiles/ModbusLogger.dir/src/PeriodParser.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/ModbusLogger.dir/src/PeriodParser.cpp.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /hdd/diskS/Igor/Projects/ModbusToDB/src/PeriodParser.cpp > CMakeFiles/ModbusLogger.dir/src/PeriodParser.cpp.i
+
+CMakeFiles/ModbusLogger.dir/src/PeriodParser.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/ModbusLogger.dir/src/PeriodParser.cpp.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /hdd/diskS/Igor/Projects/ModbusToDB/src/PeriodParser.cpp -o CMakeFiles/ModbusLogger.dir/src/PeriodParser.cpp.s
+
 # Object files for target ModbusLogger
 ModbusLogger_OBJECTS = \
 "CMakeFiles/ModbusLogger.dir/src/Main.cpp.o" \
@@ -175,7 +217,10 @@ ModbusLogger_OBJECTS = \
 "CMakeFiles/ModbusLogger.dir/src/DatabaseManager.cpp.o" \
 "CMakeFiles/ModbusLogger.dir/src/SchemaManager.cpp.o" \
 "CMakeFiles/ModbusLogger.dir/src/RegisterResolver.cpp.o" \
-"CMakeFiles/ModbusLogger.dir/src/DataProcessor.cpp.o"
+"CMakeFiles/ModbusLogger.dir/src/DataProcessor.cpp.o" \
+"CMakeFiles/ModbusLogger.dir/src/DaemonManager.cpp.o" \
+"CMakeFiles/ModbusLogger.dir/src/PeriodicScheduler.cpp.o" \
+"CMakeFiles/ModbusLogger.dir/src/PeriodParser.cpp.o"
 
 # External object files for target ModbusLogger
 ModbusLogger_EXTERNAL_OBJECTS =
@@ -187,10 +232,13 @@ ModbusLogger: CMakeFiles/ModbusLogger.dir/src/DatabaseManager.cpp.o
 ModbusLogger: CMakeFiles/ModbusLogger.dir/src/SchemaManager.cpp.o
 ModbusLogger: CMakeFiles/ModbusLogger.dir/src/RegisterResolver.cpp.o
 ModbusLogger: CMakeFiles/ModbusLogger.dir/src/DataProcessor.cpp.o
+ModbusLogger: CMakeFiles/ModbusLogger.dir/src/DaemonManager.cpp.o
+ModbusLogger: CMakeFiles/ModbusLogger.dir/src/PeriodicScheduler.cpp.o
+ModbusLogger: CMakeFiles/ModbusLogger.dir/src/PeriodParser.cpp.o
 ModbusLogger: CMakeFiles/ModbusLogger.dir/build.make
 ModbusLogger: /usr/lib/x86_64-linux-gnu/libpq.so
 ModbusLogger: CMakeFiles/ModbusLogger.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/hdd/diskS/Igor/Projects/ModbusToDB/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking CXX executable ModbusLogger"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/hdd/diskS/Igor/Projects/ModbusToDB/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Linking CXX executable ModbusLogger"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/ModbusLogger.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

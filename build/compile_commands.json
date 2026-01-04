@@ -33,5 +33,20 @@
   "directory": "/hdd/diskS/Igor/Projects/ModbusToDB/build",
   "command": "/usr/bin/g++  -I/usr/include/modbus -I/usr/include/postgresql -I/usr/include/postgresql/13/server -I/hdd/diskS/Igor/Projects/ModbusToDB/build/_deps/json-src/include -g -Wall -Wextra -Wpedantic -std=c++17 -o CMakeFiles/ModbusLogger.dir/src/DataProcessor.cpp.o -c /hdd/diskS/Igor/Projects/ModbusToDB/src/DataProcessor.cpp",
   "file": "/hdd/diskS/Igor/Projects/ModbusToDB/src/DataProcessor.cpp"
+},
+{
+  "directory": "/hdd/diskS/Igor/Projects/ModbusToDB/build",
+  "command": "/usr/bin/g++  -I/usr/include/modbus -I/usr/include/postgresql -I/usr/include/postgresql/13/server -I/hdd/diskS/Igor/Projects/ModbusToDB/build/_deps/json-src/include -g -Wall -Wextra -Wpedantic -std=c++17 -o CMakeFiles/ModbusLogger.dir/src/DaemonManager.cpp.o -c /hdd/diskS/Igor/Projects/ModbusToDB/src/DaemonManager.cpp",
+  "file": "/hdd/diskS/Igor/Projects/ModbusToDB/src/DaemonManager.cpp"
+},
+{
+  "directory": "/hdd/diskS/Igor/Projects/ModbusToDB/build",
+  "command": "/usr/bin/g++  -I/usr/include/modbus -I/usr/include/postgresql -I/usr/include/postgresql/13/server -I/hdd/diskS/Igor/Projects/ModbusToDB/build/_deps/json-src/include -g -Wall -Wextra -Wpedantic -std=c++17 -o CMakeFiles/ModbusLogger.dir/src/PeriodicScheduler.cpp.o -c /hdd/diskS/Igor/Projects/ModbusToDB/src/PeriodicScheduler.cpp",
+  "file": "/hdd/diskS/Igor/Projects/ModbusToDB/src/PeriodicScheduler.cpp"
+},
+{
+  "directory": "/hdd/diskS/Igor/Projects/ModbusToDB/build",
+  "command": "/usr/bin/g++  -I/usr/include/modbus -I/usr/include/postgresql -I/usr/include/postgresql/13/server -I/hdd/diskS/Igor/Projects/ModbusToDB/build/_deps/json-src/include -g -Wall -Wextra -Wpedantic -std=c++17 -o CMakeFiles/ModbusLogger.dir/src/PeriodParser.cpp.o -c /hdd/diskS/Igor/Projects/ModbusToDB/src/PeriodParser.cpp",
+  "file": "/hdd/diskS/Igor/Projects/ModbusToDB/src/PeriodParser.cpp"
 }
 ]

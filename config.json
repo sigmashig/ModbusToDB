@@ -5,6 +5,7 @@
   "devices": [
     {
       "id": 1,
+      "enabled": true,
       "isZero": true,
       "connection": {
         "port": "/dev/ttyUSB0",
@@ -19,8 +20,10 @@
           "name": "dcTemp",
           "type": "int16",
           "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": true
+          "scale": 1,
+          "preprocessing": true,
+          "period": "5s",
+          "enabled": true
         },
         {
           "address": 586,
@@ -28,7 +31,9 @@
           "type": "int16",
           "regType": "holding",
           "scale": 1,
-          "preprocessing": false
+          "preprocessing": false,
+          "period": "10s",
+          "enabled": true
         },
         {
           "address": 588,
@@ -36,7 +41,9 @@
           "type": "int16",
           "regType": "holding",
           "scale": 1.0,
-          "preprocessing": false
+          "preprocessing": false,
+          "period": "15s",
+          "enabled": true
         },
         {
           "address": 534,
@@ -44,7 +51,9 @@
           "type": "int32",
           "regType": "holding",
           "scale": 0.1,
-          "preprocessing": false
+          "preprocessing": false,
+          "period": "20s",
+          "enabled": true
         }
       ]
     }

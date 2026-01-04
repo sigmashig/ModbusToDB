@@ -5,6 +5,7 @@
   "devices": [
     {
       "id": 1,
+      "enabled": true,
       "connection": {
         "port": "/dev/ttyUSB0",
         "baud_rate": 9600,
@@ -18,33 +19,42 @@
           "name": "temperature",
           "type": "int16",
           "scale": 0.1,
-          "preprocessing": false
+          "preprocessing": false,
+          "period": "5s",
+          "enabled": true
         },
         {
           "address": 101,
           "name": "pressure",
           "type": "int16",
           "scale": 1.0,
-          "preprocessing": false
+          "preprocessing": false,
+          "period": "30s",
+          "enabled": true
         },
         {
           "address": 200,
           "name": "flow_rate",
           "type": "int32",
           "scale": 0.01,
-          "preprocessing": false
+          "preprocessing": false,
+          "period": "1m",
+          "enabled": true
         },
         {
           "address": 300,
           "name": "voltage",
           "type": "float32",
           "scale": 1.0,
-          "preprocessing": false
+          "preprocessing": false,
+          "period": "1h",
+          "enabled": false
         }
       ]
     },
     {
       "id": 2,
+      "enabled": true,
       "connection": {
         "port": "/dev/ttyUSB1",
         "baud_rate": 19200,
@@ -58,7 +68,9 @@
           "name": "status",
           "type": "int16",
           "scale": 1.0,
-          "preprocessing": false
+          "preprocessing": false,
+          "period": "10s",
+          "enabled": true
         }
       ]
     }

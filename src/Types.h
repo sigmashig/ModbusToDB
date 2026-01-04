@@ -1,64 +1,58 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#include <cstdint>
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
-#include <cstdint>
 
 namespace ModbusLogger {
 
-enum class RegisterType {
-    Int16,
-    Int32,
-    Float32
-};
+enum class RegisterType { Int16, Int32, Float32 };
 
-enum class ModbusRegisterType {
-    Coil,
-    Discrete,
-    Input,
-    Holding
-};
+enum class ModbusRegisterType { Coil, Discrete, Input, Holding };
 
 struct RegisterDefinition {
-    uint16_t address;
-    std::string name;
-    RegisterType type;
-    ModbusRegisterType regType;
-    double scale;
-    bool preprocessing;
+  uint16_t address;
+  std::string name;
+  RegisterType type;
+  ModbusRegisterType regType;
+  double scale;
+  bool preprocessing;
+  std::string period; // Human-readable period: "5s", "1m", "1h", "1d"
+  bool enabled;       // Include register in reading cycle
 };
 
 struct ConnectionParams {
-    std::string port;
-    int baudRate;
-    char parity;
-    int dataBits;
-    int stopBits;
+  std::string port;
+  int baudRate;
+  char parity;
+  int dataBits;
+  int stopBits;
 };
 
 struct DeviceConfig {
-    int id;
-    ConnectionParams connection;
-    bool isZero;
-    std::vector<RegisterDefinition> registers;
+  int id;
+  ConnectionParams connection;
+  bool isZero;
+  bool enabled; // Include device in reading cycle
+  std::vector<RegisterDefinition> registers;
 };
 
 struct Config {
-    std::string databaseConnectionString;
-    std::vector<DeviceConfig> devices;
+  std::string databaseConnectionString;
+  std::vector<DeviceConfig> devices;
 };
 
 struct RegisterValue {
-    uint16_t address;
-    std::string name;
-    RegisterType type;
-    ModbusRegisterType regType;
-    double scale;
-    bool preprocessing;
-    int64_t rawValue;
-    double processedValue;
+  uint16_t address;
+  std::string name;
+  RegisterType type;
+  ModbusRegisterType regType;
+  double scale;
+  bool preprocessing;
+  int64_t rawValue;
+  double processedValue;
 };
 
 using RegisterValueMap = std::map<uint16_t, RegisterValue>;
@@ -66,4 +60,3 @@ using RegisterValueMap = std::map<uint16_t, RegisterValue>;
 } // namespace ModbusLogger
 
 #endif // TYPES_H
-

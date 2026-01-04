@@ -1,4 +1,5 @@
 #include "ConfigParser.h"
+#include "PeriodParser.h"
 #include <nlohmann/json.hpp>
 #include <fstream>
 #include <sstream>
@@ -80,6 +81,13 @@ Config ConfigParser::parse(const std::string& configPath) {
             device.isZero = true;
         }
 
+        // Parse enabled (defaults to true if not specified)
+        if (deviceJson.contains("enabled") && deviceJson["enabled"].is_boolean()) {
+            device.enabled = deviceJson["enabled"];
+        } else {
+            device.enabled = true;
+        }
+
         // Parse registers
         if (!deviceJson.contains("registers") || !deviceJson["registers"].is_array()) {
             throw ConfigParseException("Device " + std::to_string(device.id) + " missing or invalid 'registers' array");
@@ -119,6 +127,26 @@ Config ConfigParser::parse(const std::string& configPath) {
                 reg.preprocessing = regJson["preprocessing"];
             } else {
                 reg.preprocessing = false;
+            }
+
+            // Parse period (required field)
+            if (!regJson.contains("period") || !regJson["period"].is_string()) {
+                throw ConfigParseException("Register at address " + std::to_string(reg.address) + " missing or invalid 'period' (expected format: e.g., '5s', '1m', '1h', '1d')");
+            }
+            std::string periodStr = regJson["period"];
+            // Validate period format and range
+            try {
+                PeriodParser::parsePeriod(periodStr);
+            } catch (const ConfigParseException& e) {
+                throw ConfigParseException("Register at address " + std::to_string(reg.address) + " has invalid period: " + e.what());
+            }
+            reg.period = periodStr;
+
+            // Parse enabled (defaults to true if not specified)
+            if (regJson.contains("enabled") && regJson["enabled"].is_boolean()) {
+                reg.enabled = regJson["enabled"];
+            } else {
+                reg.enabled = true;
             }
 
             device.registers.push_back(reg);
