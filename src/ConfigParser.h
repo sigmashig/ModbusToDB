@@ -13,6 +13,7 @@ public:
     
 private:
     static RegisterType parseRegisterType(const std::string& typeStr);
+    static ModbusRegisterType parseModbusRegisterType(const std::string& regTypeStr);
     static char parseParity(const std::string& parityStr);
 };
 

@@ -17,6 +17,7 @@ RegisterValue DataProcessor::processRegister(const RegisterDefinition& regDef, c
     result.address = regDef.address;
     result.name = regDef.name;
     result.type = regDef.type;
+    result.regType = regDef.regType;
     result.scale = regDef.scale;
     result.preprocessing = regDef.preprocessing;
 

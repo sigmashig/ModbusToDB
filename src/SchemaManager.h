@@ -20,6 +20,9 @@ private:
     std::string getColumnType(const RegisterDefinition& reg) const;
     std::vector<std::string> getExistingColumns(const std::string& tableName);
     bool columnExists(const std::string& tableName, const std::string& columnName);
+    std::string getCurrentColumnType(const std::string& tableName, const std::string& columnName);
+    bool needsColumnAlter(const std::string& currentType, const std::string& expectedType);
+    bool alterColumnType(const std::string& tableName, const std::string& columnName, const std::string& newType);
 
     DatabaseManager& dbManager;
 };

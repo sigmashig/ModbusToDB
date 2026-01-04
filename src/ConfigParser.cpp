@@ -73,6 +73,13 @@ Config ConfigParser::parse(const std::string& configPath) {
         }
         device.connection.stopBits = connJson["stop_bits"];
 
+        // Parse isZero (defaults to true for 0-based addressing)
+        if (deviceJson.contains("isZero") && deviceJson["isZero"].is_boolean()) {
+            device.isZero = deviceJson["isZero"];
+        } else {
+            device.isZero = true;
+        }
+
         // Parse registers
         if (!deviceJson.contains("registers") || !deviceJson["registers"].is_array()) {
             throw ConfigParseException("Device " + std::to_string(device.id) + " missing or invalid 'registers' array");
@@ -95,6 +102,12 @@ Config ConfigParser::parse(const std::string& configPath) {
                 throw ConfigParseException("Register at address " + std::to_string(reg.address) + " missing or invalid 'type'");
             }
             reg.type = parseRegisterType(regJson["type"]);
+
+            if (regJson.contains("regType") && regJson["regType"].is_string()) {
+                reg.regType = parseModbusRegisterType(regJson["regType"]);
+            } else {
+                reg.regType = ModbusRegisterType::Holding;
+            }
 
             if (regJson.contains("scale") && regJson["scale"].is_number()) {
                 reg.scale = regJson["scale"];
@@ -126,6 +139,20 @@ RegisterType ConfigParser::parseRegisterType(const std::string& typeStr) {
         return RegisterType::Float32;
     } else {
         throw ConfigParseException("Invalid register type: " + typeStr);
+    }
+}
+
+ModbusRegisterType ConfigParser::parseModbusRegisterType(const std::string& regTypeStr) {
+    if (regTypeStr == "coil") {
+        return ModbusRegisterType::Coil;
+    } else if (regTypeStr == "discrete") {
+        return ModbusRegisterType::Discrete;
+    } else if (regTypeStr == "input") {
+        return ModbusRegisterType::Input;
+    } else if (regTypeStr == "holding") {
+        return ModbusRegisterType::Holding;
+    } else {
+        throw ConfigParseException("Invalid Modbus register type: " + regTypeStr + " (must be coil, discrete, input, or holding)");
     }
 }
 

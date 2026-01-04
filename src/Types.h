@@ -14,10 +14,18 @@ enum class RegisterType {
     Float32
 };
 
+enum class ModbusRegisterType {
+    Coil,
+    Discrete,
+    Input,
+    Holding
+};
+
 struct RegisterDefinition {
     uint16_t address;
     std::string name;
     RegisterType type;
+    ModbusRegisterType regType;
     double scale;
     bool preprocessing;
 };
@@ -33,6 +41,7 @@ struct ConnectionParams {
 struct DeviceConfig {
     int id;
     ConnectionParams connection;
+    bool isZero;
     std::vector<RegisterDefinition> registers;
 };
 
@@ -45,6 +54,7 @@ struct RegisterValue {
     uint16_t address;
     std::string name;
     RegisterType type;
+    ModbusRegisterType regType;
     double scale;
     bool preprocessing;
     int64_t rawValue;
