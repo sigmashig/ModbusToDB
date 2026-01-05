@@ -5,6 +5,11 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Set default build type to Release
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
+endif()
+
 # Find dependencies
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(LIBMODBUS REQUIRED libmodbus)
@@ -104,6 +109,7 @@ install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 
 # Install config.json alongside binary
 if(EXISTS ${CMAKE_SOURCE_DIR}/config.json)
-    install(FILES ${CMAKE_SOURCE_DIR}/config.json DESTINATION bin)
+    #install(FILES ${CMAKE_SOURCE_DIR}/config.json DESTINATION bin)
+    message (STATUS "config.json will not be installed. Copy it to /etc/modbuslogger/config.json manually")
 endif()
 

@@ -8,7 +8,7 @@
 
 namespace ModbusLogger {
 
-enum class RegisterType { Int16, Int32, Float32 };
+enum class RegisterType { Int16, Int32, Float32, Uint16, Uint32, Uint64 };
 
 enum class ModbusRegisterType { Coil, Discrete, Input, Holding };
 

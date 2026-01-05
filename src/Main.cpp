@@ -20,7 +20,7 @@
 
 namespace {
 constexpr const char *DEFAULT_CONFIG = "./config.json";
-constexpr const char *DEFAULT_PID_FILE = "/var/run/modbuslogger.pid";
+constexpr const char *DEFAULT_PID_FILE = "/tmp/.modbuslogger.pid";
 constexpr int DEFAULT_DEVICE_ID = 1;
 constexpr int MAX_RETRIES = 3;
 constexpr int RETRY_DELAY_MS = 400;
@@ -48,40 +48,45 @@ std::string quoteIdentifier(const std::string &identifier) {
 
 void shutdownHandler() { g_shutdownRequested = true; }
 
+double preprocessValue(double value) {
+
+  int64_t intValue = static_cast<int64_t>(std::round(value));
+
+  // Handle zero or negative values
+  if (intValue <= 0) {
+    return value;
+  }
+
+  // Find the highest power of 10 less than the value
+  int64_t powerOf10 = 1;
+  int64_t temp = intValue;
+  while (temp >= 10) {
+    powerOf10 *= 10;
+    temp /= 10;
+  }
+
+  // Extract first digit
+  int firstDigit = static_cast<int>(intValue / powerOf10);
+
+  // Remove first digit from value
+  int64_t remainingValue = intValue % powerOf10;
+
+  // Apply scaling: multiply by 10^(-firstDigit)
+  double scale = std::pow(10.0, -firstDigit);
+  return static_cast<double>(remainingValue) * scale;
+}
+
 ModbusLogger::DataProcessor::PreprocessFunction
 createPreprocessFunction(int deviceId) {
   return [deviceId](
              uint16_t address, double value,
              const ModbusLogger::RegisterValueMap & /* allValues */) -> double {
     // Process register 540 for device ID 1
-    if (deviceId == DEVICE_ID_1 && address == REGISTER_540) {
-      // Convert to integer to extract first digit
-      int64_t intValue = static_cast<int64_t>(std::round(value));
-
-      // Handle zero or negative values
-      if (intValue <= 0) {
-        return value;
+    if (deviceId == DEVICE_ID_1) {
+      if (address == REGISTER_540) {
+        return preprocessValue(value);
       }
-
-      // Find the highest power of 10 less than the value
-      int64_t powerOf10 = 1;
-      int64_t temp = intValue;
-      while (temp >= 10) {
-        powerOf10 *= 10;
-        temp /= 10;
-      }
-
-      // Extract first digit
-      int firstDigit = static_cast<int>(intValue / powerOf10);
-
-      // Remove first digit from value
-      int64_t remainingValue = intValue % powerOf10;
-
-      // Apply scaling: multiply by 10^(-firstDigit)
-      double scale = std::pow(10.0, -firstDigit);
-      return static_cast<double>(remainingValue) * scale;
     }
-
     // For other registers, return value unchanged
     return value;
   };
@@ -97,7 +102,7 @@ void printUsage(const char *programName) {
          "./config.json)\n"
       << "  -d, --device-id <id>       Modbus device ID (default: 1)\n"
       << "  -p, --pid-file <path>      PID file path (default: "
-         "/var/run/modbuslogger.pid)\n"
+         "/tmp/modbuslogger.pid)\n"
       << "  -s, --single-run           Run once and exit (for testing)\n"
       << "  -v, --verbose              Print register reading information\n"
       << "  -h, --help                 Show this help message\n";
@@ -121,10 +126,16 @@ bool readSingleRegister(ModbusLogger::ModbusClient &modbusClient,
   }
 
   // Determine quantity
-  uint16_t quantity = (reg.type == ModbusLogger::RegisterType::Int32 ||
-                       reg.type == ModbusLogger::RegisterType::Float32)
-                          ? 2
-                          : 1;
+  uint16_t quantity;
+  if (reg.type == ModbusLogger::RegisterType::Int32 ||
+      reg.type == ModbusLogger::RegisterType::Float32 ||
+      reg.type == ModbusLogger::RegisterType::Uint32) {
+    quantity = 2;
+  } else if (reg.type == ModbusLogger::RegisterType::Uint64) {
+    quantity = 4;
+  } else {
+    quantity = 1;
+  }
 
   if (verbose) {
     std::cerr << "Reading register: " << reg.name
@@ -143,18 +154,16 @@ bool readSingleRegister(ModbusLogger::ModbusClient &modbusClient,
     switch (reg.regType) {
     case ModbusLogger::ModbusRegisterType::Coil: {
       std::vector<uint16_t> addresses;
-      addresses.push_back(modbusAddress);
-      if (quantity == 2) {
-        addresses.push_back(modbusAddress + 1);
+      for (uint16_t i = 0; i < quantity; ++i) {
+        addresses.push_back(modbusAddress + i);
       }
       success = modbusClient.readCoils(addresses, values);
       break;
     }
     case ModbusLogger::ModbusRegisterType::Discrete: {
       std::vector<uint16_t> addresses;
-      addresses.push_back(modbusAddress);
-      if (quantity == 2) {
-        addresses.push_back(modbusAddress + 1);
+      for (uint16_t i = 0; i < quantity; ++i) {
+        addresses.push_back(modbusAddress + i);
       }
       success = modbusClient.readDiscreteInputs(addresses, values);
       break;

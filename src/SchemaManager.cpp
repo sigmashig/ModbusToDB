@@ -128,6 +128,31 @@ std::string SchemaManager::getColumnType(const RegisterDefinition &reg) const {
     }
   }
 
+  case RegisterType::Uint16:
+  case RegisterType::Uint32:
+  case RegisterType::Uint64: {
+    // Check if scale is integer
+    bool isIntegerScale = (reg.scale == static_cast<int64_t>(reg.scale));
+
+    if (isIntegerScale) {
+      if (reg.type == RegisterType::Uint64) {
+        return "BIGINT";
+      } else if (reg.type == RegisterType::Uint32) {
+        return "BIGINT";
+      } else {
+        return "INTEGER";
+      }
+    } else {
+      if (reg.type == RegisterType::Uint64) {
+        return "DECIMAL(20, 2)";
+      } else if (reg.type == RegisterType::Uint32) {
+        return "DECIMAL(10, 2)";
+      } else {
+        return "DECIMAL(6, 2)";
+      }
+    }
+  }
+
   default:
     return "FLOAT";
   }
