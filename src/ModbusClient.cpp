@@ -186,6 +186,52 @@ bool ModbusClient::readDiscreteInputs(const std::vector<uint16_t>& addresses, st
     return true;
 }
 
+bool ModbusClient::readCoils(uint16_t startAddress, uint16_t quantity, std::vector<uint16_t>& values) {
+    if (!connected || ctx == nullptr) {
+        lastError = "Not connected to Modbus device";
+        std::cerr << "Error: " << lastError << std::endl;
+        return false;
+    }
+
+    values.resize(quantity);
+    std::vector<uint8_t> bits(quantity);
+    int result = modbus_read_bits(ctx, startAddress, quantity, bits.data());
+    if (result == -1) {
+        lastError = "Failed to read coils starting at " + std::to_string(startAddress) + ": " + std::string(modbus_strerror(errno));
+        std::cerr << "Error: " << lastError << std::endl;
+        return false;
+    }
+
+    for (size_t i = 0; i < quantity; ++i) {
+        values[i] = static_cast<uint16_t>(bits[i]);
+    }
+
+    return true;
+}
+
+bool ModbusClient::readDiscreteInputs(uint16_t startAddress, uint16_t quantity, std::vector<uint16_t>& values) {
+    if (!connected || ctx == nullptr) {
+        lastError = "Not connected to Modbus device";
+        std::cerr << "Error: " << lastError << std::endl;
+        return false;
+    }
+
+    values.resize(quantity);
+    std::vector<uint8_t> bits(quantity);
+    int result = modbus_read_input_bits(ctx, startAddress, quantity, bits.data());
+    if (result == -1) {
+        lastError = "Failed to read discrete inputs starting at " + std::to_string(startAddress) + ": " + std::string(modbus_strerror(errno));
+        std::cerr << "Error: " << lastError << std::endl;
+        return false;
+    }
+
+    for (size_t i = 0; i < quantity; ++i) {
+        values[i] = static_cast<uint16_t>(bits[i]);
+    }
+
+    return true;
+}
+
 void ModbusClient::flushBuffer() {
     if (ctx != nullptr && connected) {
         // Flush any remaining data in the serial buffer

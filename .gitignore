@@ -45,3 +45,6 @@ build/
 
 # cache directory
 .cache/
+build/ModbusLogger
+build/CMakeFiles/ModbusLogger.dir/compiler_depend.make
+build/*

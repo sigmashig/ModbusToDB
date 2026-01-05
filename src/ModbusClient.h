@@ -27,7 +27,11 @@ public:
                           std::vector<uint16_t> &values);
   bool readCoils(const std::vector<uint16_t> &addresses,
                  std::vector<uint16_t> &values);
+  bool readCoils(uint16_t startAddress, uint16_t quantity,
+                 std::vector<uint16_t> &values);
   bool readDiscreteInputs(const std::vector<uint16_t> &addresses,
+                          std::vector<uint16_t> &values);
+  bool readDiscreteInputs(uint16_t startAddress, uint16_t quantity,
                           std::vector<uint16_t> &values);
 
   void flushBuffer();

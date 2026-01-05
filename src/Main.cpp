@@ -5,6 +5,7 @@
 #include "ModbusClient.h"
 #include "PeriodicScheduler.h"
 #include "SchemaManager.h"
+#include <algorithm>
 #include <atomic>
 #include <chrono>
 #include <cmath>
@@ -30,6 +31,7 @@ constexpr double VALUE_EPSILON = 1e-9;
 constexpr const char *TABLE_NAME = "modbus_data";
 constexpr uint16_t REGISTER_540 = 540;
 constexpr int DEVICE_ID_1 = 1;
+constexpr uint16_t MAX_BATCH_WORDS = 100;
 
 std::atomic<bool> g_shutdownRequested(false);
 
@@ -90,6 +92,219 @@ createPreprocessFunction(int deviceId) {
     // For other registers, return value unchanged
     return value;
   };
+}
+
+struct RegisterBatch {
+    ModbusLogger::ModbusRegisterType regType;
+    std::vector<const ModbusLogger::RegisterDefinition*> registers;
+    uint16_t startAddress;
+    uint16_t totalWords;
+};
+
+uint16_t getRegisterWordCount(const ModbusLogger::RegisterDefinition& reg) {
+    if (reg.type == ModbusLogger::RegisterType::Int32 ||
+        reg.type == ModbusLogger::RegisterType::Float32 ||
+        reg.type == ModbusLogger::RegisterType::Uint32) {
+        return 2;
+    } else if (reg.type == ModbusLogger::RegisterType::Uint64) {
+        return 4;
+    } else {
+        return 1;
+    }
+}
+
+uint16_t getAdjustedAddress(uint16_t address, bool isZero) {
+    if (!isZero) {
+        if (address == 0) {
+            return 0; // Will be handled as error elsewhere
+        }
+        return address - 1;
+    }
+    return address;
+}
+
+std::vector<RegisterBatch> groupRegistersIntoBatches(
+    const std::vector<const ModbusLogger::RegisterDefinition*>& registers,
+    const ModbusLogger::DeviceConfig* deviceConfig) {
+    std::vector<RegisterBatch> batches;
+    
+    if (registers.empty()) {
+        return batches;
+    }
+    
+    // Group by Modbus register type
+    std::map<ModbusLogger::ModbusRegisterType, std::vector<const ModbusLogger::RegisterDefinition*>> typeGroups;
+    for (const auto* reg : registers) {
+        typeGroups[reg->regType].push_back(reg);
+    }
+    
+    // Process each type group
+    for (auto& [regType, typeRegisters] : typeGroups) {
+        // Sort by adjusted address
+        std::sort(typeRegisters.begin(), typeRegisters.end(),
+            [deviceConfig](const ModbusLogger::RegisterDefinition* a,
+                          const ModbusLogger::RegisterDefinition* b) {
+                uint16_t addrA = getAdjustedAddress(a->address, deviceConfig->isZero);
+                uint16_t addrB = getAdjustedAddress(b->address, deviceConfig->isZero);
+                return addrA < addrB;
+            });
+        
+        // Create batches for this type
+        for (size_t i = 0; i < typeRegisters.size(); ) {
+            RegisterBatch batch;
+            batch.regType = regType;
+            batch.startAddress = getAdjustedAddress(typeRegisters[i]->address, deviceConfig->isZero);
+            
+            // Add registers to batch while within word limit
+            while (i < typeRegisters.size()) {
+                const auto* reg = typeRegisters[i];
+                uint16_t regAddress = getAdjustedAddress(reg->address, deviceConfig->isZero);
+                uint16_t wordCount = getRegisterWordCount(*reg);
+                
+                // Calculate the span needed: from startAddress to end of this register
+                uint16_t endAddress = regAddress + wordCount;
+                uint16_t spanNeeded = endAddress - batch.startAddress;
+                
+                if (spanNeeded > MAX_BATCH_WORDS && !batch.registers.empty()) {
+                    break;
+                }
+                
+                batch.registers.push_back(reg);
+                batch.totalWords = spanNeeded;
+                ++i;
+            }
+            
+            if (!batch.registers.empty()) {
+                batches.push_back(batch);
+            }
+        }
+    }
+    
+    return batches;
+}
+
+struct RegisterReadResult {
+    const ModbusLogger::RegisterDefinition* reg;
+    std::vector<uint16_t> values;
+    bool success;
+};
+
+bool readBatch(ModbusLogger::ModbusClient &modbusClient,
+               const RegisterBatch &batch,
+               const ModbusLogger::DeviceConfig *deviceConfig,
+               bool verbose,
+               std::vector<RegisterReadResult> &results) {
+    results.clear();
+    results.reserve(batch.registers.size());
+    
+    if (batch.registers.empty()) {
+        return true;
+    }
+    
+    // Retry logic
+    int retryCount = 0;
+    bool success = false;
+    std::vector<uint16_t> batchValues;
+    
+    while (retryCount <= MAX_RETRIES) {
+        bool readSuccess = false;
+        
+        switch (batch.regType) {
+        case ModbusLogger::ModbusRegisterType::Coil: {
+            readSuccess = modbusClient.readCoils(batch.startAddress, batch.totalWords, batchValues);
+            break;
+        }
+        case ModbusLogger::ModbusRegisterType::Discrete: {
+            readSuccess = modbusClient.readDiscreteInputs(batch.startAddress, batch.totalWords, batchValues);
+            break;
+        }
+        case ModbusLogger::ModbusRegisterType::Input: {
+            readSuccess = modbusClient.readInputRegisters(batch.startAddress, batch.totalWords, batchValues);
+            break;
+        }
+        case ModbusLogger::ModbusRegisterType::Holding: {
+            readSuccess = modbusClient.readHoldingRegisters(batch.startAddress, batch.totalWords, batchValues);
+            break;
+        }
+        }
+        
+        if (readSuccess) {
+            success = true;
+            if (retryCount > 0) {
+                modbusClient.flushBuffer();
+                std::this_thread::sleep_for(std::chrono::milliseconds(POST_RETRY_DELAY_MS));
+            }
+            break;
+        }
+        
+        retryCount++;
+        if (retryCount <= MAX_RETRIES) {
+            if (verbose) {
+                std::cerr << "  Retry " << retryCount << "/" << MAX_RETRIES
+                          << " after error: " << modbusClient.getLastError()
+                          << std::endl;
+            }
+            modbusClient.flushBuffer();
+            std::this_thread::sleep_for(std::chrono::milliseconds(RETRY_DELAY_MS));
+        }
+    }
+    
+    if (!success) {
+        std::cerr << "Error: Failed to read batch starting at address " << batch.startAddress
+                  << " after " << MAX_RETRIES
+                  << " retries: " << modbusClient.getLastError() << std::endl;
+        // Mark all registers as failed
+        for (const auto* reg : batch.registers) {
+            RegisterReadResult result;
+            result.reg = reg;
+            result.success = false;
+            results.push_back(result);
+        }
+        return false;
+    }
+    
+    modbusClient.flushBuffer();
+    std::this_thread::sleep_for(std::chrono::milliseconds(READ_DELAY_MS));
+    
+    // Map batch values to individual registers
+    for (const auto* reg : batch.registers) {
+        RegisterReadResult result;
+        result.reg = reg;
+        result.success = true;
+        
+        uint16_t regAddress = getAdjustedAddress(reg->address, deviceConfig->isZero);
+        uint16_t offset = regAddress - batch.startAddress;
+        uint16_t wordCount = getRegisterWordCount(*reg);
+        
+        if (offset + wordCount > batchValues.size()) {
+            std::cerr << "Error: Register at address " << reg->address
+                      << " extends beyond batch response" << std::endl;
+            result.success = false;
+            results.push_back(result);
+            continue;
+        }
+        
+        result.values.assign(batchValues.begin() + offset, batchValues.begin() + offset + wordCount);
+        
+        if (verbose) {
+            std::cerr << "Reading register: " << reg->name
+                      << " (address: " << reg->address;
+            if (!deviceConfig->isZero) {
+                std::cerr << ", modbus address: " << regAddress;
+            }
+            std::cerr << ")" << std::endl;
+            std::cerr << "  Raw value(s): ";
+            for (size_t i = 0; i < result.values.size(); ++i) {
+                if (i > 0) std::cerr << ", ";
+                std::cerr << result.values[i];
+            }
+            std::cerr << std::endl;
+        }
+        
+        results.push_back(result);
+    }
+    
+    return true;
 }
 
 } // namespace
@@ -344,20 +559,49 @@ int runSingleMode(const ModbusLogger::Config &config, int deviceId,
     return 1;
   }
 
-  // Read all registers
-  std::vector<uint16_t> allRawValues;
-  allRawValues.reserve(registers.size() * 2);
-
+  // Convert to pointers for batch grouping
+  std::vector<const ModbusLogger::RegisterDefinition*> registerPtrs;
+  registerPtrs.reserve(registers.size());
   for (const auto &reg : registers) {
-    std::vector<uint16_t> values;
-    if (!readSingleRegister(modbusClient, reg, deviceConfig, verbose, values)) {
+    registerPtrs.push_back(&reg);
+  }
+
+  // Group registers into batches
+  auto batches = groupRegistersIntoBatches(registerPtrs, deviceConfig);
+
+  // Read all batches and collect results
+  std::map<uint16_t, std::vector<uint16_t>> registerValues;
+  for (const auto &batch : batches) {
+    std::vector<RegisterReadResult> batchResults;
+    if (!readBatch(modbusClient, batch, deviceConfig, verbose, batchResults)) {
       modbusClient.disconnect();
       return 1;
     }
-    allRawValues.insert(allRawValues.end(), values.begin(), values.end());
+
+    for (const auto &result : batchResults) {
+      if (result.success) {
+        registerValues[result.reg->address] = result.values;
+      } else {
+        modbusClient.disconnect();
+        return 1;
+      }
+    }
   }
 
   modbusClient.disconnect();
+
+  // Collect raw values in register order
+  std::vector<uint16_t> allRawValues;
+  allRawValues.reserve(registers.size() * 2);
+  for (const auto &reg : registers) {
+    auto it = registerValues.find(reg.address);
+    if (it != registerValues.end()) {
+      allRawValues.insert(allRawValues.end(), it->second.begin(), it->second.end());
+    } else {
+      std::cerr << "Error: Missing values for register at address " << reg.address << std::endl;
+      return 1;
+    }
+  }
 
   // Process data
   ModbusLogger::DataProcessor processor;
@@ -537,41 +781,61 @@ int runContinuousMode(const ModbusLogger::Config &config, int deviceId,
     // Get registers that need reading
     auto registersToRead = scheduler.getRegistersToRead();
 
-    for (const auto *reg : registersToRead) {
-      // Ensure connections
-      if (!ensureModbusConnection(modbusClient)) {
-        std::this_thread::sleep_for(std::chrono::seconds(5));
+    if (registersToRead.empty()) {
+      // Sleep until next read is needed
+      auto sleepTime = scheduler.getTimeUntilNextRead();
+      if (sleepTime.count() > 0) {
+        std::this_thread::sleep_for(sleepTime);
+      } else {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      }
+      continue;
+    }
+
+    // Ensure connections
+    if (!ensureModbusConnection(modbusClient)) {
+      std::this_thread::sleep_for(std::chrono::seconds(5));
+      continue;
+    }
+
+    if (!ensureDatabaseConnection(dbManager, deviceId, registers)) {
+      std::this_thread::sleep_for(std::chrono::seconds(5));
+      continue;
+    }
+
+    // Group registers into batches
+    auto batches = groupRegistersIntoBatches(registersToRead, deviceConfig);
+
+    // Process each batch
+    for (const auto &batch : batches) {
+      std::vector<RegisterReadResult> batchResults;
+      if (!readBatch(modbusClient, batch, deviceConfig, verbose, batchResults)) {
+        // Continue to next batch on error
         continue;
       }
 
-      if (!ensureDatabaseConnection(dbManager, deviceId, registers)) {
-        std::this_thread::sleep_for(std::chrono::seconds(5));
-        continue;
+      // Process each register in the batch
+      for (const auto &result : batchResults) {
+        if (!result.success) {
+          continue;
+        }
+
+        // Process value
+        std::vector<ModbusLogger::RegisterDefinition> singleReg;
+        singleReg.push_back(*result.reg);
+        auto processedValues = processor.processRegisters(singleReg, result.values);
+
+        if (processedValues.empty()) {
+          continue;
+        }
+
+        // Store if changed
+        storeValueIfChanged(dbManager, deviceId, processedValues[0].name,
+                            processedValues[0].processedValue, lastValues);
+
+        // Mark as read
+        scheduler.markRegisterRead(*result.reg);
       }
-
-      // Read register
-      std::vector<uint16_t> values;
-      if (!readSingleRegister(modbusClient, *reg, deviceConfig, verbose,
-                              values)) {
-        // Continue to next register on error
-        continue;
-      }
-
-      // Process value
-      std::vector<ModbusLogger::RegisterDefinition> singleReg;
-      singleReg.push_back(*reg);
-      auto processedValues = processor.processRegisters(singleReg, values);
-
-      if (processedValues.empty()) {
-        continue;
-      }
-
-      // Store if changed
-      storeValueIfChanged(dbManager, deviceId, processedValues[0].name,
-                          processedValues[0].processedValue, lastValues);
-
-      // Mark as read
-      scheduler.markRegisterRead(*reg);
     }
 
     // Sleep until next read is needed
@@ -655,3 +919,4 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 }
+
