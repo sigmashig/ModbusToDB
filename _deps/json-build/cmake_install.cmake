@@ -1,4 +1,4 @@
-# Install script for directory: /hdd/diskS/Igor/Projects/ModbusToDB/build/_deps/json-src
+# Install script for directory: /hdd/diskS/Igor/Projects/ModbusToDB/_deps/json-src
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

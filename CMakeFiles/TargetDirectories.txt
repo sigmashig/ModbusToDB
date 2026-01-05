@@ -1,0 +1,13 @@
+/hdd/diskS/Igor/Projects/ModbusToDB/CMakeFiles/ModbusLogger.dir
+/hdd/diskS/Igor/Projects/ModbusToDB/CMakeFiles/edit_cache.dir
+/hdd/diskS/Igor/Projects/ModbusToDB/CMakeFiles/rebuild_cache.dir
+/hdd/diskS/Igor/Projects/ModbusToDB/CMakeFiles/list_install_components.dir
+/hdd/diskS/Igor/Projects/ModbusToDB/CMakeFiles/install.dir
+/hdd/diskS/Igor/Projects/ModbusToDB/CMakeFiles/install/local.dir
+/hdd/diskS/Igor/Projects/ModbusToDB/CMakeFiles/install/strip.dir
+/hdd/diskS/Igor/Projects/ModbusToDB/_deps/json-build/CMakeFiles/edit_cache.dir
+/hdd/diskS/Igor/Projects/ModbusToDB/_deps/json-build/CMakeFiles/rebuild_cache.dir
+/hdd/diskS/Igor/Projects/ModbusToDB/_deps/json-build/CMakeFiles/list_install_components.dir
+/hdd/diskS/Igor/Projects/ModbusToDB/_deps/json-build/CMakeFiles/install.dir
+/hdd/diskS/Igor/Projects/ModbusToDB/_deps/json-build/CMakeFiles/install/local.dir
+/hdd/diskS/Igor/Projects/ModbusToDB/_deps/json-build/CMakeFiles/install/strip.dir

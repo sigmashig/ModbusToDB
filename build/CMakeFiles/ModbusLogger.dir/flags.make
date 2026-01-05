@@ -6,5 +6,5 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -I/usr/include/modbus -I/usr/include/postgresql -I/usr/include/postgresql/13/server -I/hdd/diskS/Igor/Projects/ModbusToDB/build/_deps/json-src/include
 
-CXX_FLAGS = -g -Wall -Wextra -Wpedantic -std=c++17
+CXX_FLAGS = -O3 -DNDEBUG -Wall -Wextra -Wpedantic -std=c++17
 

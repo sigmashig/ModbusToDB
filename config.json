@@ -33,7 +33,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 590,
@@ -43,7 +43,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 591,
@@ -53,7 +53,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 598,
@@ -63,7 +63,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 599,
@@ -73,7 +73,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 600,
@@ -83,7 +83,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 604,
@@ -93,7 +93,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 605,
@@ -103,7 +103,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 606,
@@ -113,7 +113,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 607,
@@ -123,7 +123,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 608,
@@ -133,7 +133,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 609,
@@ -143,7 +143,7 @@
           "scale": 0.01,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 610,
@@ -153,7 +153,7 @@
           "scale": 0.01,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 611,
@@ -163,7 +163,7 @@
           "scale": 0.01,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 612,
@@ -173,7 +173,7 @@
           "scale": 0.01,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 613,
@@ -183,7 +183,7 @@
           "scale": 0.01,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 614,
@@ -193,7 +193,7 @@
           "scale": 0.01,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 615,
@@ -203,7 +203,7 @@
           "scale": 0.01,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 616,
@@ -213,7 +213,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 617,
@@ -223,7 +223,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 618,
@@ -233,7 +233,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 619,
@@ -243,7 +243,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 621,
@@ -253,7 +253,7 @@
           "scale": 0.01,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 627,
@@ -263,7 +263,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 628,
@@ -273,7 +273,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 629,
@@ -283,7 +283,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 630,
@@ -293,7 +293,7 @@
           "scale": 0.01,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 631,
@@ -303,7 +303,7 @@
           "scale": 0.01,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 632,
@@ -313,7 +313,7 @@
           "scale": 0.01,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 633,
@@ -323,7 +323,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 634,
@@ -333,7 +333,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 635,
@@ -343,7 +343,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 636,
@@ -353,7 +353,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 637,
@@ -363,7 +363,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 638,
@@ -373,7 +373,7 @@
           "scale": 0.01,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 640,
@@ -383,7 +383,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 641,
@@ -393,7 +393,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 642,
@@ -403,7 +403,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 644,
@@ -413,7 +413,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 645,
@@ -423,7 +423,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 646,
@@ -433,7 +433,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 650,
@@ -443,7 +443,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 651,
@@ -453,7 +453,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 652,
@@ -463,7 +463,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 661,
@@ -473,7 +473,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 662,
@@ -483,7 +483,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 663,
@@ -493,7 +493,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 664,
@@ -503,7 +503,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 665,
@@ -513,7 +513,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 666,
@@ -523,7 +523,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 672,
@@ -533,7 +533,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 673,
@@ -543,7 +543,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 676,
@@ -553,7 +553,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 677,
@@ -563,7 +563,7 @@
           "scale": 0.01,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 678,
@@ -573,7 +573,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 679,
@@ -583,7 +583,7 @@
           "scale": 0.01,
           "preprocessing": false,
           "period": "5s",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 555,
@@ -593,7 +593,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "1m",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 556,
@@ -603,7 +603,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "1m",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 557,
@@ -613,7 +613,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "1m",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 558,
@@ -623,7 +623,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "1m",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 587,
@@ -633,7 +633,7 @@
           "scale": 0.01,
           "preprocessing": false,
           "period": "1m",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 588,
@@ -643,7 +643,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "1m",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 514,
@@ -653,7 +653,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "1h",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 515,
@@ -663,7 +663,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "1h",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 516,
@@ -673,7 +673,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "1h",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 518,
@@ -683,7 +683,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "1h",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 520,
@@ -693,7 +693,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "1h",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 521,
@@ -703,7 +703,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "1h",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 522,
@@ -713,7 +713,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "1h",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 524,
@@ -723,7 +723,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "1h",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 526,
@@ -733,7 +733,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "1h",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 527,
@@ -743,7 +743,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "1h",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 529,
@@ -753,7 +753,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "1h",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 530,
@@ -763,7 +763,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "1h",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 531,
@@ -773,7 +773,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "1h",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 532,
@@ -783,7 +783,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "1h",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 533,
@@ -793,7 +793,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "1h",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 534,
@@ -803,7 +803,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "1h",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 536,
@@ -813,7 +813,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "1h",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 537,
@@ -823,7 +823,7 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "1h",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 539,
@@ -833,7 +833,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "1h",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 620,
@@ -843,7 +843,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "1h",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 643,
@@ -853,7 +853,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "1h",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 653,
@@ -863,7 +863,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "1h",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 654,
@@ -873,7 +873,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "1h",
-          "enabled": false
+          "enabled": true
         },
         {
           "address": 667,
@@ -883,7 +883,7 @@
           "scale": 1,
           "preprocessing": false,
           "period": "1h",
-          "enabled": false
+          "enabled": true
         }
       ]
     }
