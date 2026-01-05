@@ -1,0 +1,19 @@
+[Unit]
+Description=Modbus to PostgreSQL Data Logger
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=forking
+User=igor
+Group=igor
+ExecStart=/usr/local/bin/ModbusLogger --config /etc/modbuslogger/config.json
+ExecStop=/bin/kill -TERM $MAINPID
+PIDFile=/tmp/.modbuslogger.pid
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

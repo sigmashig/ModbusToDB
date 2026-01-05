@@ -7,12 +7,17 @@
 #include "SchemaManager.h"
 #include <algorithm>
 #include <atomic>
+#include <cerrno>
 #include <chrono>
 #include <cmath>
 #include <csignal>
+#include <cstdio>
+#include <cstring>
+#include <filesystem>
 #include <getopt.h>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <pqxx/pqxx>
 #include <sstream>
 #include <string>
@@ -22,6 +27,8 @@
 namespace {
 constexpr const char *DEFAULT_CONFIG = "./config.json";
 constexpr const char *DEFAULT_PID_FILE = "/tmp/.modbuslogger.pid";
+constexpr const char *DEFAULT_LOG_FILE =
+    "/var/log/modbuslogger/modbuslogger.log";
 constexpr int DEFAULT_DEVICE_ID = 1;
 constexpr int MAX_RETRIES = 3;
 constexpr int RETRY_DELAY_MS = 400;
@@ -95,217 +102,316 @@ createPreprocessFunction(int deviceId) {
 }
 
 struct RegisterBatch {
-    ModbusLogger::ModbusRegisterType regType;
-    std::vector<const ModbusLogger::RegisterDefinition*> registers;
-    uint16_t startAddress;
-    uint16_t totalWords;
+  ModbusLogger::ModbusRegisterType regType;
+  std::vector<const ModbusLogger::RegisterDefinition *> registers;
+  uint16_t startAddress;
+  uint16_t totalWords;
 };
 
-uint16_t getRegisterWordCount(const ModbusLogger::RegisterDefinition& reg) {
-    if (reg.type == ModbusLogger::RegisterType::Int32 ||
-        reg.type == ModbusLogger::RegisterType::Float32 ||
-        reg.type == ModbusLogger::RegisterType::Uint32) {
-        return 2;
-    } else if (reg.type == ModbusLogger::RegisterType::Uint64) {
-        return 4;
-    } else {
-        return 1;
-    }
+uint16_t getRegisterWordCount(const ModbusLogger::RegisterDefinition &reg) {
+  if (reg.type == ModbusLogger::RegisterType::Int32 ||
+      reg.type == ModbusLogger::RegisterType::Float32 ||
+      reg.type == ModbusLogger::RegisterType::Uint32) {
+    return 2;
+  } else if (reg.type == ModbusLogger::RegisterType::Uint64) {
+    return 4;
+  } else {
+    return 1;
+  }
 }
 
 uint16_t getAdjustedAddress(uint16_t address, bool isZero) {
-    if (!isZero) {
-        if (address == 0) {
-            return 0; // Will be handled as error elsewhere
-        }
-        return address - 1;
+  if (!isZero) {
+    if (address == 0) {
+      return 0; // Will be handled as error elsewhere
     }
-    return address;
+    return address - 1;
+  }
+  return address;
 }
 
 std::vector<RegisterBatch> groupRegistersIntoBatches(
-    const std::vector<const ModbusLogger::RegisterDefinition*>& registers,
-    const ModbusLogger::DeviceConfig* deviceConfig) {
-    std::vector<RegisterBatch> batches;
-    
-    if (registers.empty()) {
-        return batches;
-    }
-    
-    // Group by Modbus register type
-    std::map<ModbusLogger::ModbusRegisterType, std::vector<const ModbusLogger::RegisterDefinition*>> typeGroups;
-    for (const auto* reg : registers) {
-        typeGroups[reg->regType].push_back(reg);
-    }
-    
-    // Process each type group
-    for (auto& [regType, typeRegisters] : typeGroups) {
-        // Sort by adjusted address
-        std::sort(typeRegisters.begin(), typeRegisters.end(),
-            [deviceConfig](const ModbusLogger::RegisterDefinition* a,
-                          const ModbusLogger::RegisterDefinition* b) {
-                uint16_t addrA = getAdjustedAddress(a->address, deviceConfig->isZero);
-                uint16_t addrB = getAdjustedAddress(b->address, deviceConfig->isZero);
-                return addrA < addrB;
-            });
-        
-        // Create batches for this type
-        for (size_t i = 0; i < typeRegisters.size(); ) {
-            RegisterBatch batch;
-            batch.regType = regType;
-            batch.startAddress = getAdjustedAddress(typeRegisters[i]->address, deviceConfig->isZero);
-            
-            // Add registers to batch while within word limit
-            while (i < typeRegisters.size()) {
-                const auto* reg = typeRegisters[i];
-                uint16_t regAddress = getAdjustedAddress(reg->address, deviceConfig->isZero);
-                uint16_t wordCount = getRegisterWordCount(*reg);
-                
-                // Calculate the span needed: from startAddress to end of this register
-                uint16_t endAddress = regAddress + wordCount;
-                uint16_t spanNeeded = endAddress - batch.startAddress;
-                
-                if (spanNeeded > MAX_BATCH_WORDS && !batch.registers.empty()) {
-                    break;
-                }
-                
-                batch.registers.push_back(reg);
-                batch.totalWords = spanNeeded;
-                ++i;
-            }
-            
-            if (!batch.registers.empty()) {
-                batches.push_back(batch);
-            }
-        }
-    }
-    
+    const std::vector<const ModbusLogger::RegisterDefinition *> &registers,
+    const ModbusLogger::DeviceConfig *deviceConfig) {
+  std::vector<RegisterBatch> batches;
+
+  if (registers.empty()) {
     return batches;
+  }
+
+  // Group by Modbus register type
+  std::map<ModbusLogger::ModbusRegisterType,
+           std::vector<const ModbusLogger::RegisterDefinition *>>
+      typeGroups;
+  for (const auto *reg : registers) {
+    typeGroups[reg->regType].push_back(reg);
+  }
+
+  // Process each type group
+  for (auto &[regType, typeRegisters] : typeGroups) {
+    // Sort by adjusted address
+    std::sort(typeRegisters.begin(), typeRegisters.end(),
+              [deviceConfig](const ModbusLogger::RegisterDefinition *a,
+                             const ModbusLogger::RegisterDefinition *b) {
+                uint16_t addrA =
+                    getAdjustedAddress(a->address, deviceConfig->isZero);
+                uint16_t addrB =
+                    getAdjustedAddress(b->address, deviceConfig->isZero);
+                return addrA < addrB;
+              });
+
+    // Create batches for this type
+    for (size_t i = 0; i < typeRegisters.size();) {
+      RegisterBatch batch;
+      batch.regType = regType;
+      batch.startAddress =
+          getAdjustedAddress(typeRegisters[i]->address, deviceConfig->isZero);
+
+      // Add registers to batch while within word limit
+      while (i < typeRegisters.size()) {
+        const auto *reg = typeRegisters[i];
+        uint16_t regAddress =
+            getAdjustedAddress(reg->address, deviceConfig->isZero);
+        uint16_t wordCount = getRegisterWordCount(*reg);
+
+        // Calculate the span needed: from startAddress to end of this register
+        uint16_t endAddress = regAddress + wordCount;
+        uint16_t spanNeeded = endAddress - batch.startAddress;
+
+        if (spanNeeded > MAX_BATCH_WORDS && !batch.registers.empty()) {
+          break;
+        }
+
+        batch.registers.push_back(reg);
+        batch.totalWords = spanNeeded;
+        ++i;
+      }
+
+      if (!batch.registers.empty()) {
+        batches.push_back(batch);
+      }
+    }
+  }
+
+  return batches;
 }
 
 struct RegisterReadResult {
-    const ModbusLogger::RegisterDefinition* reg;
-    std::vector<uint16_t> values;
-    bool success;
+  const ModbusLogger::RegisterDefinition *reg;
+  std::vector<uint16_t> values;
+  bool success;
 };
 
 bool readBatch(ModbusLogger::ModbusClient &modbusClient,
                const RegisterBatch &batch,
-               const ModbusLogger::DeviceConfig *deviceConfig,
-               bool verbose,
+               const ModbusLogger::DeviceConfig *deviceConfig, bool verbose,
                std::vector<RegisterReadResult> &results) {
-    results.clear();
-    results.reserve(batch.registers.size());
-    
-    if (batch.registers.empty()) {
-        return true;
-    }
-    
-    // Retry logic
-    int retryCount = 0;
-    bool success = false;
-    std::vector<uint16_t> batchValues;
-    
-    while (retryCount <= MAX_RETRIES) {
-        bool readSuccess = false;
-        
-        switch (batch.regType) {
-        case ModbusLogger::ModbusRegisterType::Coil: {
-            readSuccess = modbusClient.readCoils(batch.startAddress, batch.totalWords, batchValues);
-            break;
-        }
-        case ModbusLogger::ModbusRegisterType::Discrete: {
-            readSuccess = modbusClient.readDiscreteInputs(batch.startAddress, batch.totalWords, batchValues);
-            break;
-        }
-        case ModbusLogger::ModbusRegisterType::Input: {
-            readSuccess = modbusClient.readInputRegisters(batch.startAddress, batch.totalWords, batchValues);
-            break;
-        }
-        case ModbusLogger::ModbusRegisterType::Holding: {
-            readSuccess = modbusClient.readHoldingRegisters(batch.startAddress, batch.totalWords, batchValues);
-            break;
-        }
-        }
-        
-        if (readSuccess) {
-            success = true;
-            if (retryCount > 0) {
-                modbusClient.flushBuffer();
-                std::this_thread::sleep_for(std::chrono::milliseconds(POST_RETRY_DELAY_MS));
-            }
-            break;
-        }
-        
-        retryCount++;
-        if (retryCount <= MAX_RETRIES) {
-            if (verbose) {
-                std::cerr << "  Retry " << retryCount << "/" << MAX_RETRIES
-                          << " after error: " << modbusClient.getLastError()
-                          << std::endl;
-            }
-            modbusClient.flushBuffer();
-            std::this_thread::sleep_for(std::chrono::milliseconds(RETRY_DELAY_MS));
-        }
-    }
-    
-    if (!success) {
-        std::cerr << "Error: Failed to read batch starting at address " << batch.startAddress
-                  << " after " << MAX_RETRIES
-                  << " retries: " << modbusClient.getLastError() << std::endl;
-        // Mark all registers as failed
-        for (const auto* reg : batch.registers) {
-            RegisterReadResult result;
-            result.reg = reg;
-            result.success = false;
-            results.push_back(result);
-        }
-        return false;
-    }
-    
-    modbusClient.flushBuffer();
-    std::this_thread::sleep_for(std::chrono::milliseconds(READ_DELAY_MS));
-    
-    // Map batch values to individual registers
-    for (const auto* reg : batch.registers) {
-        RegisterReadResult result;
-        result.reg = reg;
-        result.success = true;
-        
-        uint16_t regAddress = getAdjustedAddress(reg->address, deviceConfig->isZero);
-        uint16_t offset = regAddress - batch.startAddress;
-        uint16_t wordCount = getRegisterWordCount(*reg);
-        
-        if (offset + wordCount > batchValues.size()) {
-            std::cerr << "Error: Register at address " << reg->address
-                      << " extends beyond batch response" << std::endl;
-            result.success = false;
-            results.push_back(result);
-            continue;
-        }
-        
-        result.values.assign(batchValues.begin() + offset, batchValues.begin() + offset + wordCount);
-        
-        if (verbose) {
-            std::cerr << "Reading register: " << reg->name
-                      << " (address: " << reg->address;
-            if (!deviceConfig->isZero) {
-                std::cerr << ", modbus address: " << regAddress;
-            }
-            std::cerr << ")" << std::endl;
-            std::cerr << "  Raw value(s): ";
-            for (size_t i = 0; i < result.values.size(); ++i) {
-                if (i > 0) std::cerr << ", ";
-                std::cerr << result.values[i];
-            }
-            std::cerr << std::endl;
-        }
-        
-        results.push_back(result);
-    }
-    
+  results.clear();
+  results.reserve(batch.registers.size());
+
+  if (batch.registers.empty()) {
     return true;
+  }
+
+  // Retry logic: attempt initial read, then retry up to MAX_RETRIES times on
+  // error
+  int attemptNumber = 0;
+  bool success = false;
+  std::vector<uint16_t> batchValues;
+  std::string lastError;
+
+  while (attemptNumber <= MAX_RETRIES) {
+    bool readSuccess = false;
+
+    if (verbose && attemptNumber > 0) {
+      std::cerr << "  Batch retry attempt " << attemptNumber << "/"
+                << MAX_RETRIES << " (start address: " << batch.startAddress
+                << ", words: " << batch.totalWords << ")" << std::endl;
+    }
+
+    switch (batch.regType) {
+    case ModbusLogger::ModbusRegisterType::Coil: {
+      readSuccess = modbusClient.readCoils(batch.startAddress, batch.totalWords,
+                                           batchValues);
+      break;
+    }
+    case ModbusLogger::ModbusRegisterType::Discrete: {
+      readSuccess = modbusClient.readDiscreteInputs(
+          batch.startAddress, batch.totalWords, batchValues);
+      break;
+    }
+    case ModbusLogger::ModbusRegisterType::Input: {
+      readSuccess = modbusClient.readInputRegisters(
+          batch.startAddress, batch.totalWords, batchValues);
+      break;
+    }
+    case ModbusLogger::ModbusRegisterType::Holding: {
+      readSuccess = modbusClient.readHoldingRegisters(
+          batch.startAddress, batch.totalWords, batchValues);
+      break;
+    }
+    }
+
+    if (readSuccess) {
+      success = true;
+      if (attemptNumber > 0) {
+        if (verbose) {
+          std::cerr << "  Batch read succeeded after " << attemptNumber
+                    << " retries" << std::endl;
+        }
+        modbusClient.flushBuffer();
+        std::this_thread::sleep_for(
+            std::chrono::milliseconds(POST_RETRY_DELAY_MS));
+      }
+      break;
+    }
+
+    // Read failed - save error and prepare for retry
+    lastError = modbusClient.getLastError();
+    attemptNumber++;
+
+    if (attemptNumber <= MAX_RETRIES) {
+      if (verbose) {
+        std::cerr << "  Batch read failed (attempt " << attemptNumber
+                  << "): " << lastError << std::endl;
+      }
+      modbusClient.flushBuffer();
+      std::this_thread::sleep_for(std::chrono::milliseconds(RETRY_DELAY_MS));
+    }
+  }
+
+  if (!success) {
+    std::cerr << "Error: Failed to read batch starting at address "
+              << batch.startAddress << " after " << MAX_RETRIES
+              << " retries (total " << (MAX_RETRIES + 1) << " attempts)"
+              << ": " << lastError << std::endl;
+    // Mark all registers as failed
+    for (const auto *reg : batch.registers) {
+      RegisterReadResult result;
+      result.reg = reg;
+      result.success = false;
+      results.push_back(result);
+    }
+    return false;
+  }
+
+  modbusClient.flushBuffer();
+  std::this_thread::sleep_for(std::chrono::milliseconds(READ_DELAY_MS));
+
+  // Map batch values to individual registers
+  for (const auto *reg : batch.registers) {
+    RegisterReadResult result;
+    result.reg = reg;
+    result.success = true;
+
+    uint16_t regAddress =
+        getAdjustedAddress(reg->address, deviceConfig->isZero);
+    uint16_t offset = regAddress - batch.startAddress;
+    uint16_t wordCount = getRegisterWordCount(*reg);
+
+    if (offset + wordCount > batchValues.size()) {
+      std::cerr << "Error: Register at address " << reg->address
+                << " extends beyond batch response" << std::endl;
+      result.success = false;
+      results.push_back(result);
+      continue;
+    }
+
+    result.values.assign(batchValues.begin() + offset,
+                         batchValues.begin() + offset + wordCount);
+
+    if (verbose) {
+      std::cerr << "Reading register: " << reg->name
+                << " (address: " << reg->address;
+      if (!deviceConfig->isZero) {
+        std::cerr << ", modbus address: " << regAddress;
+      }
+      std::cerr << ")" << std::endl;
+      std::cerr << "  Raw value(s): ";
+      for (size_t i = 0; i < result.values.size(); ++i) {
+        if (i > 0)
+          std::cerr << ", ";
+        std::cerr << result.values[i];
+      }
+      std::cerr << std::endl;
+    }
+
+    results.push_back(result);
+  }
+
+  return true;
 }
+
+// Custom stream buffer that adds timestamps to each line
+class TimestampStreambuf : public std::streambuf {
+public:
+  TimestampStreambuf(FILE *file) : file_(file), atStartOfLine_(true) {
+    // Set buffer
+    setp(buffer_, buffer_ + sizeof(buffer_) - 1);
+  }
+
+  ~TimestampStreambuf() override {
+    if (file_ != nullptr) {
+      sync();
+    }
+  }
+
+protected:
+  int overflow(int c) override {
+    if (c != EOF) {
+      *pptr() = static_cast<char>(c);
+      pbump(1);
+    }
+    return (flushBuffer() == EOF) ? EOF : c;
+  }
+
+  int sync() override { return flushBuffer(); }
+
+private:
+  int flushBuffer() {
+    if (pbase() == pptr()) {
+      return 0; // Buffer is empty
+    }
+
+    std::string line(pbase(), pptr());
+    setp(buffer_, buffer_ + sizeof(buffer_) - 1);
+
+    // Add timestamp at start of line
+    if (atStartOfLine_) {
+      auto now = std::chrono::system_clock::now();
+      auto time = std::chrono::system_clock::to_time_t(now);
+      auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                    now.time_since_epoch()) %
+                1000;
+
+      std::tm *tm_info = std::localtime(&time);
+      char timestamp[64];
+      std::snprintf(timestamp, sizeof(timestamp),
+                    "[%04d-%02d-%02d %02d:%02d:%02d.%03ld] ",
+                    tm_info->tm_year + 1900, tm_info->tm_mon + 1,
+                    tm_info->tm_mday, tm_info->tm_hour, tm_info->tm_min,
+                    tm_info->tm_sec, ms.count());
+
+      std::fputs(timestamp, file_);
+      atStartOfLine_ = false;
+    }
+
+    // Write the line
+    std::fputs(line.c_str(), file_);
+
+    // Check if line ends with newline
+    if (!line.empty() && line.back() == '\n') {
+      atStartOfLine_ = true;
+    }
+
+    std::fflush(file_);
+    return 0;
+  }
+
+  FILE *file_;
+  char buffer_[1024];
+  bool atStartOfLine_;
+};
 
 } // namespace
 
@@ -318,6 +424,8 @@ void printUsage(const char *programName) {
       << "  -d, --device-id <id>       Modbus device ID (default: 1)\n"
       << "  -p, --pid-file <path>      PID file path (default: "
          "/tmp/modbuslogger.pid)\n"
+      << "  -l, --log-file <path>      Log file path (default: "
+         "/var/log/modbuslogger/modbuslogger.log)\n"
       << "  -s, --single-run           Run once and exit (for testing)\n"
       << "  -v, --verbose              Print register reading information\n"
       << "  -h, --help                 Show this help message\n";
@@ -560,7 +668,7 @@ int runSingleMode(const ModbusLogger::Config &config, int deviceId,
   }
 
   // Convert to pointers for batch grouping
-  std::vector<const ModbusLogger::RegisterDefinition*> registerPtrs;
+  std::vector<const ModbusLogger::RegisterDefinition *> registerPtrs;
   registerPtrs.reserve(registers.size());
   for (const auto &reg : registers) {
     registerPtrs.push_back(&reg);
@@ -596,9 +704,11 @@ int runSingleMode(const ModbusLogger::Config &config, int deviceId,
   for (const auto &reg : registers) {
     auto it = registerValues.find(reg.address);
     if (it != registerValues.end()) {
-      allRawValues.insert(allRawValues.end(), it->second.begin(), it->second.end());
+      allRawValues.insert(allRawValues.end(), it->second.begin(),
+                          it->second.end());
     } else {
-      std::cerr << "Error: Missing values for register at address " << reg.address << std::endl;
+      std::cerr << "Error: Missing values for register at address "
+                << reg.address << std::endl;
       return 1;
     }
   }
@@ -809,7 +919,8 @@ int runContinuousMode(const ModbusLogger::Config &config, int deviceId,
     // Process each batch
     for (const auto &batch : batches) {
       std::vector<RegisterReadResult> batchResults;
-      if (!readBatch(modbusClient, batch, deviceConfig, verbose, batchResults)) {
+      if (!readBatch(modbusClient, batch, deviceConfig, verbose,
+                     batchResults)) {
         // Continue to next batch on error
         continue;
       }
@@ -823,7 +934,8 @@ int runContinuousMode(const ModbusLogger::Config &config, int deviceId,
         // Process value
         std::vector<ModbusLogger::RegisterDefinition> singleReg;
         singleReg.push_back(*result.reg);
-        auto processedValues = processor.processRegisters(singleReg, result.values);
+        auto processedValues =
+            processor.processRegisters(singleReg, result.values);
 
         if (processedValues.empty()) {
           continue;
@@ -852,10 +964,105 @@ int runContinuousMode(const ModbusLogger::Config &config, int deviceId,
   return 0;
 }
 
+// Global stream buffers for timestamped logging
+static std::unique_ptr<TimestampStreambuf> coutBuf;
+static std::unique_ptr<TimestampStreambuf> cerrBuf;
+static std::unique_ptr<std::ostream> timestampedCout;
+static std::unique_ptr<std::ostream> timestampedCerr;
+static FILE *logFileCout = nullptr;
+static FILE *logFileCerr = nullptr;
+static std::streambuf *originalCoutBuf = nullptr;
+static std::streambuf *originalCerrBuf = nullptr;
+
+bool redirectOutputToLogFile(const std::string &logFilePath) {
+  // Extract directory from log file path
+  std::filesystem::path logPath(logFilePath);
+  std::filesystem::path logDir = logPath.parent_path();
+
+  // Create directory if it doesn't exist
+  if (!logDir.empty() && !std::filesystem::exists(logDir)) {
+    try {
+      std::filesystem::create_directories(logDir);
+    } catch (const std::filesystem::filesystem_error &e) {
+      std::cerr << "Error: Failed to create log directory: " << logDir.string()
+                << " - " << e.what() << std::endl;
+      return false;
+    }
+  }
+
+  // Open separate file handles for stdout and stderr (both append to same file)
+  logFileCout = std::fopen(logFilePath.c_str(), "a");
+  if (logFileCout == nullptr) {
+    std::cerr << "Error: Failed to open log file: " << logFilePath
+              << " (check permissions and directory existence)" << std::endl;
+    return false;
+  }
+
+  logFileCerr = std::fopen(logFilePath.c_str(), "a");
+  if (logFileCerr == nullptr) {
+    std::fclose(logFileCout);
+    logFileCout = nullptr;
+    std::cerr << "Error: Failed to open log file for stderr: " << logFilePath
+              << " (check permissions and directory existence)" << std::endl;
+    return false;
+  }
+
+  // Save original stream buffers
+  originalCoutBuf = std::cout.rdbuf();
+  originalCerrBuf = std::cerr.rdbuf();
+
+  // Create timestamped stream buffers
+  coutBuf = std::make_unique<TimestampStreambuf>(logFileCout);
+  cerrBuf = std::make_unique<TimestampStreambuf>(logFileCerr);
+
+  // Create custom streams with timestamp buffers
+  timestampedCout = std::make_unique<std::ostream>(coutBuf.get());
+  timestampedCerr = std::make_unique<std::ostream>(cerrBuf.get());
+
+  // Redirect std::cout and std::cerr to use our timestamped streams
+  std::cout.rdbuf(timestampedCout->rdbuf());
+  std::cerr.rdbuf(timestampedCerr->rdbuf());
+
+  // Make streams unbuffered for immediate logging
+  std::cout.setf(std::ios::unitbuf);
+  std::cerr.setf(std::ios::unitbuf);
+
+  return true;
+}
+
+void restoreOriginalStreams() {
+  // Restore original stream buffers before cleanup
+  if (originalCoutBuf != nullptr) {
+    std::cout.rdbuf(originalCoutBuf);
+    originalCoutBuf = nullptr;
+  }
+  if (originalCerrBuf != nullptr) {
+    std::cerr.rdbuf(originalCerrBuf);
+    originalCerrBuf = nullptr;
+  }
+
+  // Close file handles
+  if (logFileCout != nullptr) {
+    std::fclose(logFileCout);
+    logFileCout = nullptr;
+  }
+  if (logFileCerr != nullptr) {
+    std::fclose(logFileCerr);
+    logFileCerr = nullptr;
+  }
+
+  // Clear the unique_ptrs (this will destroy the buffers and streams)
+  timestampedCout.reset();
+  timestampedCerr.reset();
+  coutBuf.reset();
+  cerrBuf.reset();
+}
+
 int main(int argc, char *argv[]) {
   std::string configPath = DEFAULT_CONFIG;
   int deviceId = DEFAULT_DEVICE_ID;
   std::string pidFilePath = DEFAULT_PID_FILE;
+  std::string logFilePath = DEFAULT_LOG_FILE;
   bool singleRun = false;
   bool verbose = false;
   bool deviceIdExplicit = false;
@@ -865,6 +1072,7 @@ int main(int argc, char *argv[]) {
       {"config", required_argument, nullptr, 'c'},
       {"device-id", required_argument, nullptr, 'd'},
       {"pid-file", required_argument, nullptr, 'p'},
+      {"log-file", required_argument, nullptr, 'l'},
       {"single-run", no_argument, nullptr, 's'},
       {"verbose", no_argument, nullptr, 'v'},
       {"help", no_argument, nullptr, 'h'},
@@ -872,7 +1080,7 @@ int main(int argc, char *argv[]) {
 
   int optionIndex = 0;
   int c;
-  while ((c = getopt_long(argc, argv, "c:d:p:svh", longOptions,
+  while ((c = getopt_long(argc, argv, "c:d:p:l:svh", longOptions,
                           &optionIndex)) != -1) {
     switch (c) {
     case 'c':
@@ -884,6 +1092,9 @@ int main(int argc, char *argv[]) {
       break;
     case 'p':
       pidFilePath = optarg;
+      break;
+    case 'l':
+      logFilePath = optarg;
       break;
     case 's':
       singleRun = true;
@@ -900,23 +1111,34 @@ int main(int argc, char *argv[]) {
     }
   }
 
+  // Redirect output to log file (after parsing arguments, before any other
+  // output)
+  if (!redirectOutputToLogFile(logFilePath)) {
+    return 1;
+  }
+
+  int result = 0;
   try {
     // Parse configuration
     ModbusLogger::Config config = ModbusLogger::ConfigParser::parse(configPath);
 
     if (singleRun) {
-      return runSingleMode(config, deviceId, verbose, deviceIdExplicit);
+      result = runSingleMode(config, deviceId, verbose, deviceIdExplicit);
     } else {
-      return runContinuousMode(config, deviceId, verbose, pidFilePath,
-                               deviceIdExplicit);
+      result = runContinuousMode(config, deviceId, verbose, pidFilePath,
+                                 deviceIdExplicit);
     }
 
   } catch (const ModbusLogger::ConfigParseException &e) {
     std::cerr << "Error: " << e.what() << std::endl;
-    return 1;
+    result = 1;
   } catch (const std::exception &e) {
     std::cerr << "Error: " << e.what() << std::endl;
-    return 1;
+    result = 1;
   }
-}
 
+  // Restore original streams before exit
+  restoreOriginalStreams();
+
+  return result;
+}
