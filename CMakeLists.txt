@@ -107,9 +107,13 @@ endif()
 # Installation
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 
-# Install config.json alongside binary
+# Install config.json to /etc/modbuslogger
 if(EXISTS ${CMAKE_SOURCE_DIR}/config.json)
-    #install(FILES ${CMAKE_SOURCE_DIR}/config.json DESTINATION bin)
-    message (STATUS "config.json will not be installed. Copy it to /etc/modbuslogger/config.json manually")
+    install(FILES ${CMAKE_SOURCE_DIR}/config.json 
+            DESTINATION /etc/modbuslogger
+            PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ WORLD_READ)
+    message(STATUS "config.json will be installed to /etc/modbuslogger/config.json")
+else()
+    message(WARNING "config.json not found. It will not be installed.")
 endif()
 

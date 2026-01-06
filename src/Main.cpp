@@ -37,6 +37,7 @@ constexpr int POST_RETRY_DELAY_MS = 300;
 constexpr double VALUE_EPSILON = 1e-9;
 constexpr const char *TABLE_NAME = "modbus_data";
 constexpr uint16_t REGISTER_540 = 540;
+constexpr uint16_t REGISTER_541 = 541;
 constexpr int DEVICE_ID_1 = 1;
 constexpr uint16_t MAX_BATCH_WORDS = 100;
 
@@ -57,7 +58,7 @@ std::string quoteIdentifier(const std::string &identifier) {
 
 void shutdownHandler() { g_shutdownRequested = true; }
 
-double preprocessValue(double value) {
+double preprocessPrecisionFirst(double value) {
 
   int64_t intValue = static_cast<int64_t>(std::round(value));
 
@@ -93,7 +94,7 @@ createPreprocessFunction(int deviceId) {
     // Process register 540 for device ID 1
     if (deviceId == DEVICE_ID_1) {
       if (address == REGISTER_540) {
-        return preprocessValue(value);
+        return preprocessPrecisionFirst(value);
       }
     }
     // For other registers, return value unchanged
@@ -414,6 +415,10 @@ private:
 };
 
 } // namespace
+
+// Forward declarations
+bool redirectOutputToLogFile(const std::string &logFilePath);
+void restoreOriginalStreams();
 
 void printUsage(const char *programName) {
   std::cerr
@@ -780,7 +785,7 @@ int runSingleMode(const ModbusLogger::Config &config, int deviceId,
 
 int runContinuousMode(const ModbusLogger::Config &config, int deviceId,
                       bool verbose, const std::string &pidFilePath,
-                      bool deviceIdExplicit) {
+                      bool deviceIdExplicit, const std::string &logFilePath) {
   // Find device configuration
   const ModbusLogger::DeviceConfig *deviceConfig = nullptr;
   for (const auto &device : config.devices) {
@@ -821,6 +826,12 @@ int runContinuousMode(const ModbusLogger::Config &config, int deviceId,
   ModbusLogger::DaemonManager daemonManager(pidFilePath);
   if (!daemonManager.daemonize()) {
     std::cerr << "Error: Failed to daemonize" << std::endl;
+    return 1;
+  }
+
+  // Redirect output to log file AFTER daemonization
+  // (must be done after fork to avoid invalid file handles in child process)
+  if (!redirectOutputToLogFile(logFilePath)) {
     return 1;
   }
 
@@ -1111,22 +1122,22 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  // Redirect output to log file (after parsing arguments, before any other
-  // output)
-  if (!redirectOutputToLogFile(logFilePath)) {
-    return 1;
-  }
-
   int result = 0;
   try {
     // Parse configuration
     ModbusLogger::Config config = ModbusLogger::ConfigParser::parse(configPath);
 
     if (singleRun) {
+      // Redirect output to log file for single-run mode (no daemonization)
+      if (!redirectOutputToLogFile(logFilePath)) {
+        return 1;
+      }
       result = runSingleMode(config, deviceId, verbose, deviceIdExplicit);
     } else {
+      // For continuous mode, redirect output AFTER daemonization
+      // (daemonization will be done in runContinuousMode)
       result = runContinuousMode(config, deviceId, verbose, pidFilePath,
-                                 deviceIdExplicit);
+                                 deviceIdExplicit, logFilePath);
     }
 
   } catch (const ModbusLogger::ConfigParseException &e) {

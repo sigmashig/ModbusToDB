@@ -20,7 +20,7 @@
           "name": "heatSinkTemp(С)",
           "type": "uint16",
           "regType": "holding",
-          "scale": 1,
+          "scale": 0.01,
           "preprocessing": false,
           "period": "5s",
           "enabled": true
