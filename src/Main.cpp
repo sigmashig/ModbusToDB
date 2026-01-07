@@ -3,6 +3,7 @@
 #include "DataProcessor.h"
 #include "DatabaseManager.h"
 #include "ModbusClient.h"
+#include "PeriodParser.h"
 #include "PeriodicScheduler.h"
 #include "SchemaManager.h"
 #include <algorithm>
@@ -589,12 +590,31 @@ bool ensureModbusConnection(ModbusLogger::ModbusClient &modbusClient) {
   return true;
 }
 
-bool storeValueIfChanged(ModbusLogger::DatabaseManager &dbManager, int deviceId,
-                         const std::string &registerName, double value,
-                         std::map<std::string, double> &lastValues) {
+bool storeValueIfChanged(
+    ModbusLogger::DatabaseManager &dbManager, int deviceId,
+    const std::string &registerName, double value,
+    std::map<std::string, double> &lastValues,
+    std::map<std::string, std::chrono::steady_clock::time_point>
+        &lastUpdateTimes,
+    std::chrono::seconds period) {
+  auto now = std::chrono::steady_clock::now();
+
+  // Check if 10 periods have passed since last update
+  bool forceWrite = false;
+  if (lastUpdateTimes.find(registerName) != lastUpdateTimes.end()) {
+    auto timeSinceLastUpdate = now - lastUpdateTimes[registerName];
+    auto tenPeriods = std::chrono::seconds(period.count() * 10);
+    if (timeSinceLastUpdate >= tenPeriods) {
+      forceWrite = true;
+    }
+  } else {
+    // First time seeing this register, force write
+    forceWrite = true;
+  }
+
   // Check if value changed
   bool shouldInsert = true;
-  if (lastValues.find(registerName) != lastValues.end()) {
+  if (!forceWrite && lastValues.find(registerName) != lastValues.end()) {
     double lastValue = lastValues[registerName];
     if (std::abs(value - lastValue) < VALUE_EPSILON) {
       shouldInsert = false;
@@ -616,8 +636,9 @@ bool storeValueIfChanged(ModbusLogger::DatabaseManager &dbManager, int deviceId,
     txn.exec(insertQuery.str());
     txn.commit();
 
-    // Update in-memory value
+    // Update in-memory value and timestamp
     lastValues[registerName] = value;
+    lastUpdateTimes[registerName] = now;
     return true;
   } catch (const std::exception &e) {
     std::cerr << "Error: Failed to insert data for " << registerName << ": "
@@ -767,6 +788,9 @@ int runSingleMode(const ModbusLogger::Config &config, int deviceId,
     // Continue if query fails
   }
 
+  // Initialize timestamp tracking map
+  std::map<std::string, std::chrono::steady_clock::time_point> lastUpdateTimes;
+
   // Store changed values
   for (size_t i = 0; i < processedValues.size(); ++i) {
     if (processedValues[i].address != registers[i].address) {
@@ -775,8 +799,10 @@ int runSingleMode(const ModbusLogger::Config &config, int deviceId,
       return 1;
     }
 
+    auto period = ModbusLogger::PeriodParser::parsePeriod(registers[i].period);
     storeValueIfChanged(dbManager, deviceId, processedValues[i].name,
-                        processedValues[i].processedValue, lastValues);
+                        processedValues[i].processedValue, lastValues,
+                        lastUpdateTimes, period);
   }
 
   dbManager.disconnect();
@@ -894,6 +920,9 @@ int runContinuousMode(const ModbusLogger::Config &config, int deviceId,
     // Continue if query fails - start with empty last values
   }
 
+  // Initialize timestamp tracking map
+  std::map<std::string, std::chrono::steady_clock::time_point> lastUpdateTimes;
+
   // Main loop
   ModbusLogger::DataProcessor processor;
   processor.setPreprocessFunction(createPreprocessFunction(deviceId));
@@ -953,8 +982,11 @@ int runContinuousMode(const ModbusLogger::Config &config, int deviceId,
         }
 
         // Store if changed
+        auto period =
+            ModbusLogger::PeriodParser::parsePeriod(result.reg->period);
         storeValueIfChanged(dbManager, deviceId, processedValues[0].name,
-                            processedValues[0].processedValue, lastValues);
+                            processedValues[0].processedValue, lastValues,
+                            lastUpdateTimes, period);
 
         // Mark as read
         scheduler.markRegisterRead(*result.reg);

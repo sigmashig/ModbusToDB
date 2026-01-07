@@ -23,7 +23,8 @@
           "scale": 0.01,
           "preprocessing": false,
           "period": "5s",
-          "enabled": true
+          "enabled": true,
+          "mqtt": true
         },
         {
           "address": 586,
@@ -33,17 +34,19 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": true
+          "enabled": true,
+          "mqtt": true
         },
         {
           "address": 590,
           "name": "batteryPower(W)",
           "type": "int16",
           "regType": "holding",
-          "scale": 0.1,
+          "scale": 1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": true
+          "enabled": true,
+          "mqtt": true
         },
         {
           "address": 591,
@@ -63,7 +66,8 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": true
+          "enabled": true,
+          "mqtt": true
         },
         {
           "address": 599,
@@ -73,7 +77,8 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": true
+          "enabled": true,
+          "mqtt": true
         },
         {
           "address": 600,
@@ -83,7 +88,8 @@
           "scale": 0.1,
           "preprocessing": false,
           "period": "5s",
-          "enabled": true
+          "enabled": true,
+          "mqtt": true
         },
         {
           "address": 604,
@@ -862,7 +868,7 @@
           "regType": "holding",
           "scale": 1,
           "preprocessing": false,
-          "period": "1h",
+          "period": "5s",
           "enabled": true
         },
         {

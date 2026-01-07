@@ -41,12 +41,14 @@ bool SchemaManager::ensureTableExists(
   pqxx::work txn(dbManager.getConnection());
   std::ostringstream query;
   query << "CREATE TABLE " << quoteIdentifier(TABLE_NAME) << " (";
-  query << "id SERIAL PRIMARY KEY";
+  query << "id SERIAL NOT NULL";
   query << ", device_id INTEGER NOT NULL";
   query << ", " << quoteIdentifier(TIMESTAMP_COLUMN_NAME)
-        << " TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP";
-  query << ", register_name VARCHAR(100) NOT NULL";
+        << " TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP";
+  query << ", register_name TEXT NOT NULL";
   query << ", value DOUBLE PRECISION";
+  query << ", PRIMARY KEY (id, " << quoteIdentifier(TIMESTAMP_COLUMN_NAME)
+        << ")";
   query << ")";
   std::string queryStr = query.str();
   txn.exec(queryStr);
@@ -78,26 +80,19 @@ bool SchemaManager::ensureIndexesExist() {
   try {
     pqxx::work txn(dbManager.getConnection());
 
-    // Index on device_id and timestamp for common queries
+    // Index on timestamp and register_name
     std::string idx1Query =
-        "CREATE INDEX IF NOT EXISTS idx_modbus_data_device_time "
+        "CREATE INDEX IF NOT EXISTS idx_modbus_data_timestamp_register "
         "ON " +
-        quoteIdentifier(TABLE_NAME) + "(device_id, timestamp)";
+        quoteIdentifier(TABLE_NAME) + "(timestamp, register_name)";
     txn.exec(idx1Query);
 
-    // Index on register_name and timestamp for register-specific queries
+    // Index on register_name and timestamp DESC for register-specific queries
     std::string idx2Query =
-        "CREATE INDEX IF NOT EXISTS idx_modbus_data_register_time "
+        "CREATE INDEX IF NOT EXISTS idx_modbus_data_register_timestamp_desc "
         "ON " +
-        quoteIdentifier(TABLE_NAME) + "(register_name, timestamp)";
+        quoteIdentifier(TABLE_NAME) + "(register_name, timestamp DESC)";
     txn.exec(idx2Query);
-
-    // Composite index for device + register + time queries
-    std::string idx3Query =
-        "CREATE INDEX IF NOT EXISTS idx_modbus_data_device_register_time "
-        "ON " +
-        quoteIdentifier(TABLE_NAME) + "(device_id, register_name, timestamp)";
-    txn.exec(idx3Query);
 
     txn.commit();
     return true;
