@@ -300,6 +300,12 @@ bool readBatch(ModbusLogger::ModbusClient &modbusClient,
   modbusClient.flushBuffer();
   std::this_thread::sleep_for(std::chrono::milliseconds(READ_DELAY_MS));
 
+  // Log register range
+  uint16_t endAddress = batch.startAddress + batch.totalWords - 1;
+  std::cerr << "Reading register range: " << batch.startAddress << "-"
+            << endAddress << " (words: " << batch.totalWords << ")"
+            << std::endl;
+
   // Map batch values to individual registers
   for (const auto *reg : batch.registers) {
     RegisterReadResult result;
@@ -596,7 +602,7 @@ bool storeValueIfChanged(
     std::map<std::string, double> &lastValues,
     std::map<std::string, std::chrono::steady_clock::time_point>
         &lastUpdateTimes,
-    std::chrono::seconds period) {
+    std::chrono::seconds period, const std::string &periodStr) {
   auto now = std::chrono::steady_clock::now();
 
   // Check if 10 periods have passed since last update
@@ -635,6 +641,10 @@ bool storeValueIfChanged(
                 << txn.quote(registerName) << ", " << txn.quote(value) << ")";
     txn.exec(insertQuery.str());
     txn.commit();
+
+    // Log period for this register
+    std::cerr << "Storing value for register: " << registerName
+              << " (period: " << periodStr << ")" << std::endl;
 
     // Update in-memory value and timestamp
     lastValues[registerName] = value;
@@ -802,7 +812,7 @@ int runSingleMode(const ModbusLogger::Config &config, int deviceId,
     auto period = ModbusLogger::PeriodParser::parsePeriod(registers[i].period);
     storeValueIfChanged(dbManager, deviceId, processedValues[i].name,
                         processedValues[i].processedValue, lastValues,
-                        lastUpdateTimes, period);
+                        lastUpdateTimes, period, registers[i].period);
   }
 
   dbManager.disconnect();
@@ -986,7 +996,7 @@ int runContinuousMode(const ModbusLogger::Config &config, int deviceId,
             ModbusLogger::PeriodParser::parsePeriod(result.reg->period);
         storeValueIfChanged(dbManager, deviceId, processedValues[0].name,
                             processedValues[0].processedValue, lastValues,
-                            lastUpdateTimes, period);
+                            lastUpdateTimes, period, result.reg->period);
 
         // Mark as read
         scheduler.markRegisterRead(*result.reg);
