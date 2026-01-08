@@ -14,7 +14,31 @@
         "data_bits": 8,
         "stop_bits": 1
       },
+      "ranges": [
+        {
+          "start": 514,
+          "count": 100,
+          "period": "10s",
+          "regType": "holding"
+        },
+        {
+          "start": 614,
+          "count": 66,
+          "period": "10s",
+          "regType": "holding"
+        }
+      ],
       "registers": [
+        {
+          "address": 540,
+          "name": "dcTemp(C)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 1,
+          "preprocessing": true,
+          "enabled": true,
+          "mqtt": true
+        },
         {
           "address": 541,
           "name": "heatSinkTemp(С)",
@@ -22,7 +46,6 @@
           "regType": "holding",
           "scale": 0.01,
           "preprocessing": false,
-          "period": "5s",
           "enabled": true,
           "mqtt": true
         },
@@ -33,7 +56,6 @@
           "regType": "holding",
           "scale": 0.1,
           "preprocessing": false,
-          "period": "5s",
           "enabled": true,
           "mqtt": true
         },
@@ -44,7 +66,6 @@
           "regType": "holding",
           "scale": 1,
           "preprocessing": false,
-          "period": "5s",
           "enabled": true,
           "mqtt": true
         },
@@ -55,7 +76,6 @@
           "regType": "holding",
           "scale": 0.1,
           "preprocessing": false,
-          "period": "5s",
           "enabled": true
         },
         {
@@ -65,7 +85,6 @@
           "regType": "holding",
           "scale": 0.1,
           "preprocessing": false,
-          "period": "5s",
           "enabled": true,
           "mqtt": true
         },
@@ -76,7 +95,6 @@
           "regType": "holding",
           "scale": 0.1,
           "preprocessing": false,
-          "period": "5s",
           "enabled": true,
           "mqtt": true
         },
@@ -87,7 +105,6 @@
           "regType": "holding",
           "scale": 0.1,
           "preprocessing": false,
-          "period": "5s",
           "enabled": true,
           "mqtt": true
         },
@@ -98,7 +115,6 @@
           "regType": "holding",
           "scale": 1,
           "preprocessing": false,
-          "period": "5s",
           "enabled": true
         },
         {
@@ -108,7 +124,6 @@
           "regType": "holding",
           "scale": 1,
           "preprocessing": false,
-          "period": "5s",
           "enabled": true
         },
         {
@@ -118,7 +133,6 @@
           "regType": "holding",
           "scale": 1,
           "preprocessing": false,
-          "period": "5s",
           "enabled": true
         },
         {
@@ -128,7 +142,6 @@
           "regType": "holding",
           "scale": 1,
           "preprocessing": false,
-          "period": "5s",
           "enabled": true
         },
         {
@@ -138,7 +151,6 @@
           "regType": "holding",
           "scale": 1,
           "preprocessing": false,
-          "period": "5s",
           "enabled": true
         },
         {
@@ -148,7 +160,6 @@
           "regType": "holding",
           "scale": 0.01,
           "preprocessing": false,
-          "period": "5s",
           "enabled": true
         },
         {
@@ -158,7 +169,6 @@
           "regType": "holding",
           "scale": 0.01,
           "preprocessing": false,
-          "period": "5s",
           "enabled": true
         },
         {
@@ -168,7 +178,6 @@
           "regType": "holding",
           "scale": 0.01,
           "preprocessing": false,
-          "period": "5s",
           "enabled": true
         },
         {
@@ -178,7 +187,6 @@
           "regType": "holding",
           "scale": 0.01,
           "preprocessing": false,
-          "period": "5s",
           "enabled": true
         },
         {
@@ -188,7 +196,6 @@
           "regType": "holding",
           "scale": 0.01,
           "preprocessing": false,
-          "period": "5s",
           "enabled": true
         },
         {
@@ -198,7 +205,6 @@
           "regType": "holding",
           "scale": 0.01,
           "preprocessing": false,
-          "period": "5s",
           "enabled": true
         },
         {
@@ -208,7 +214,6 @@
           "regType": "holding",
           "scale": 0.01,
           "preprocessing": false,
-          "period": "5s",
           "enabled": true
         },
         {
@@ -218,7 +223,6 @@
           "regType": "holding",
           "scale": 1,
           "preprocessing": false,
-          "period": "5s",
           "enabled": true
         },
         {
@@ -228,7 +232,6 @@
           "regType": "holding",
           "scale": 1,
           "preprocessing": false,
-          "period": "5s",
           "enabled": true
         },
         {
@@ -238,7 +241,6 @@
           "regType": "holding",
           "scale": 1,
           "preprocessing": false,
-          "period": "5s",
           "enabled": true
         },
         {
@@ -248,597 +250,6 @@
           "regType": "holding",
           "scale": 1,
           "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 621,
-          "name": "pf(NA)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 0.01,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 627,
-          "name": "invAVolt(V)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 628,
-          "name": "invBVolt(V)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 629,
-          "name": "invCVolt(V)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 630,
-          "name": "invACurrent(A)",
-          "type": "int16",
-          "regType": "holding",
-          "scale": 0.01,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 631,
-          "name": "invBCurrent(A)",
-          "type": "int16",
-          "regType": "holding",
-          "scale": 0.01,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 632,
-          "name": "invCCurrent(A)",
-          "type": "int16",
-          "regType": "holding",
-          "scale": 0.01,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 633,
-          "name": "invAPower(W)",
-          "type": "int16",
-          "regType": "holding",
-          "scale": 1,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 634,
-          "name": "invBPower(W)",
-          "type": "int16",
-          "regType": "holding",
-          "scale": 1,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 635,
-          "name": "invCPower(W)",
-          "type": "int16",
-          "regType": "holding",
-          "scale": 1,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 636,
-          "name": "invTotalPower(W)",
-          "type": "int16",
-          "regType": "holding",
-          "scale": 1,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 637,
-          "name": "invTotalSac(VA)",
-          "type": "int16",
-          "regType": "holding",
-          "scale": 1,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 638,
-          "name": "invFac(Hz)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 0.01,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 640,
-          "name": "upsLoadAPower(W)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 1,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 641,
-          "name": "upsLoadBPower(W)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 1,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 642,
-          "name": "upsLoadCPower(W)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 1,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 644,
-          "name": "loadAVolt(V)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 645,
-          "name": "loadBVolt(V)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 646,
-          "name": "loadCVolt(V)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 650,
-          "name": "loadAPower(W)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 1,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 651,
-          "name": "loadBPower(W)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 1,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 652,
-          "name": "loadCPower(W)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 1,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 661,
-          "name": "genAVolt(V)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 662,
-          "name": "genBVolt(V)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 663,
-          "name": "genCVolt(V)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 664,
-          "name": "genAPower(W)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 1,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 665,
-          "name": "genBPower(W)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 1,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 666,
-          "name": "genCPower(W)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 1,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 672,
-          "name": "ppv1(W)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 1,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 673,
-          "name": "ppv2(W)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 1,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 676,
-          "name": "vpv1(V)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 677,
-          "name": "ipv1(A)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 0.01,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 678,
-          "name": "vpv2(V)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 679,
-          "name": "ipv2(A)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 0.01,
-          "preprocessing": false,
-          "period": "5s",
-          "enabled": true
-        },
-        {
-          "address": 555,
-          "name": "FaultCode1(NA)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 1,
-          "preprocessing": false,
-          "period": "1m",
-          "enabled": true
-        },
-        {
-          "address": 556,
-          "name": "FaultCode2(NA)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 1,
-          "preprocessing": false,
-          "period": "1m",
-          "enabled": true
-        },
-        {
-          "address": 557,
-          "name": "FaultCode3(NA)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 1,
-          "preprocessing": false,
-          "period": "1m",
-          "enabled": true
-        },
-        {
-          "address": 558,
-          "name": "FaultCode4(NA)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 1,
-          "preprocessing": false,
-          "period": "1m",
-          "enabled": true
-        },
-        {
-          "address": 587,
-          "name": "batteryVolt(V)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 0.01,
-          "preprocessing": false,
-          "period": "1m",
-          "enabled": true
-        },
-        {
-          "address": 588,
-          "name": "batteryEnergy(%)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 1,
-          "preprocessing": false,
-          "period": "1m",
-          "enabled": true
-        },
-        {
-          "address": 514,
-          "name": "batChargeToday(kWh)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "1h",
-          "enabled": true
-        },
-        {
-          "address": 515,
-          "name": "batDischargeToday(kWh)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "1h",
-          "enabled": true
-        },
-        {
-          "address": 516,
-          "name": "batChargeTotal(kWh)",
-          "type": "uint32",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "1h",
-          "enabled": true
-        },
-        {
-          "address": 518,
-          "name": "batDischargeTotal(kWh)",
-          "type": "uint32",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "1h",
-          "enabled": true
-        },
-        {
-          "address": 520,
-          "name": "gridBuyToday(kWh)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "1h",
-          "enabled": true
-        },
-        {
-          "address": 521,
-          "name": "gridSellToday(kWh)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "1h",
-          "enabled": true
-        },
-        {
-          "address": 522,
-          "name": "gridBuyTotal(kWh)",
-          "type": "uint32",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "1h",
-          "enabled": true
-        },
-        {
-          "address": 524,
-          "name": "gridSellTotal(kWh)",
-          "type": "uint32",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "1h",
-          "enabled": true
-        },
-        {
-          "address": 526,
-          "name": "dailyUsed(kWh)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "1h",
-          "enabled": true
-        },
-        {
-          "address": 527,
-          "name": "totalUsed(kWh)",
-          "type": "uint32",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "1h",
-          "enabled": true
-        },
-        {
-          "address": 529,
-          "name": "pvEtoday(kWh)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "1h",
-          "enabled": true
-        },
-        {
-          "address": 530,
-          "name": "todayPv1(kWh)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "1h",
-          "enabled": true
-        },
-        {
-          "address": 531,
-          "name": "todayPv2(kWh)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "1h",
-          "enabled": true
-        },
-        {
-          "address": 532,
-          "name": "todayPv3(kWh)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "1h",
-          "enabled": true
-        },
-        {
-          "address": 533,
-          "name": "todayPv4(kWh)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "1h",
-          "enabled": true
-        },
-        {
-          "address": 534,
-          "name": "pvHistory(kWh)",
-          "type": "uint32",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "1h",
-          "enabled": true
-        },
-        {
-          "address": 536,
-          "name": "genToday(kWh)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "1h",
-          "enabled": true
-        },
-        {
-          "address": 537,
-          "name": "genTotal(kWh)",
-          "type": "uint32",
-          "regType": "holding",
-          "scale": 0.1,
-          "preprocessing": false,
-          "period": "1h",
-          "enabled": true
-        },
-        {
-          "address": 539,
-          "name": "genDailyTime(h)",
-          "type": "uint16",
-          "regType": "holding",
-          "scale": 1,
-          "preprocessing": false,
-          "period": "1h",
           "enabled": true
         },
         {
@@ -848,7 +259,564 @@
           "regType": "holding",
           "scale": 1,
           "preprocessing": false,
-          "period": "1h",
+          "enabled": true
+        },
+        {
+          "address": 621,
+          "name": "pf(NA)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 0.01,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 622,
+          "name": "aPower(W)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 623,
+          "name": "bPower(W)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 624,
+          "name": "cPower(W)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 627,
+          "name": "invAVolt(V)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 628,
+          "name": "invBVolt(V)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 629,
+          "name": "invCVolt(V)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 630,
+          "name": "invACurrent(A)",
+          "type": "int16",
+          "regType": "holding",
+          "scale": 0.01,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 631,
+          "name": "invBCurrent(A)",
+          "type": "int16",
+          "regType": "holding",
+          "scale": 0.01,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 632,
+          "name": "invCCurrent(A)",
+          "type": "int16",
+          "regType": "holding",
+          "scale": 0.01,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 633,
+          "name": "invAPower(W)",
+          "type": "int16",
+          "regType": "holding",
+          "scale": 1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 634,
+          "name": "invBPower(W)",
+          "type": "int16",
+          "regType": "holding",
+          "scale": 1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 635,
+          "name": "invCPower(W)",
+          "type": "int16",
+          "regType": "holding",
+          "scale": 1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 636,
+          "name": "invTotalPower(W)",
+          "type": "int16",
+          "regType": "holding",
+          "scale": 1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 637,
+          "name": "invTotalSac(VA)",
+          "type": "int16",
+          "regType": "holding",
+          "scale": 1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 638,
+          "name": "invFac(Hz)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 0.01,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 640,
+          "name": "upsLoadAPower(W)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 641,
+          "name": "upsLoadBPower(W)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 642,
+          "name": "upsLoadCPower(W)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 644,
+          "name": "loadAVolt(V)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 645,
+          "name": "loadBVolt(V)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 646,
+          "name": "loadCVolt(V)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 650,
+          "name": "loadAPower(W)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 651,
+          "name": "loadBPower(W)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 652,
+          "name": "loadCPower(W)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 661,
+          "name": "genAVolt(V)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 662,
+          "name": "genBVolt(V)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 663,
+          "name": "genCVolt(V)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 664,
+          "name": "genAPower(W)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 665,
+          "name": "genBPower(W)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 666,
+          "name": "genCPower(W)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 672,
+          "name": "ppv1(W)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 673,
+          "name": "ppv2(W)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 676,
+          "name": "vpv1(V)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 677,
+          "name": "ipv1(A)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 0.01,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 678,
+          "name": "vpv2(V)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 679,
+          "name": "ipv2(A)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 0.01,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 555,
+          "name": "FaultCode1(NA)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 556,
+          "name": "FaultCode2(NA)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 557,
+          "name": "FaultCode3(NA)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 558,
+          "name": "FaultCode4(NA)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 587,
+          "name": "batteryVolt(V)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 0.01,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 588,
+          "name": "batteryEnergy(%)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 514,
+          "name": "batChargeToday(kWh)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 515,
+          "name": "batDischargeToday(kWh)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 516,
+          "name": "batChargeTotal(kWh)",
+          "type": "uint32",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 518,
+          "name": "batDischargeTotal(kWh)",
+          "type": "uint32",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 520,
+          "name": "gridBuyToday(kWh)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 521,
+          "name": "gridSellToday(kWh)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 522,
+          "name": "gridBuyTotal(kWh)",
+          "type": "uint32",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 524,
+          "name": "gridSellTotal(kWh)",
+          "type": "uint32",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 526,
+          "name": "dailyUsed(kWh)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 527,
+          "name": "totalUsed(kWh)",
+          "type": "uint32",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 529,
+          "name": "pvEtoday(kWh)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 530,
+          "name": "todayPv1(kWh)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 531,
+          "name": "todayPv2(kWh)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 532,
+          "name": "todayPv3(kWh)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 533,
+          "name": "todayPv4(kWh)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 534,
+          "name": "pvHistory(kWh)",
+          "type": "uint32",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 536,
+          "name": "genToday(kWh)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 537,
+          "name": "genTotal(kWh)",
+          "type": "uint32",
+          "regType": "holding",
+          "scale": 0.1,
+          "preprocessing": false,
+          "enabled": true
+        },
+        {
+          "address": 539,
+          "name": "genDailyTime(h)",
+          "type": "uint16",
+          "regType": "holding",
+          "scale": 1,
+          "preprocessing": false,
           "enabled": true
         },
         {
@@ -858,7 +826,6 @@
           "regType": "holding",
           "scale": 1,
           "preprocessing": false,
-          "period": "1h",
           "enabled": true
         },
         {
@@ -868,7 +835,6 @@
           "regType": "holding",
           "scale": 1,
           "preprocessing": false,
-          "period": "5s",
           "enabled": true
         },
         {
@@ -878,7 +844,6 @@
           "regType": "holding",
           "scale": 1,
           "preprocessing": false,
-          "period": "1h",
           "enabled": true
         },
         {
@@ -888,7 +853,6 @@
           "regType": "holding",
           "scale": 1,
           "preprocessing": false,
-          "period": "1h",
           "enabled": true
         }
       ]

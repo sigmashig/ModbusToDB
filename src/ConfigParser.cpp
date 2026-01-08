@@ -146,24 +146,6 @@ Config ConfigParser::parse(const std::string &configPath) {
         reg.preprocessing = false;
       }
 
-      // Parse period (required field)
-      if (!regJson.contains("period") || !regJson["period"].is_string()) {
-        throw ConfigParseException("Register at address " +
-                                   std::to_string(reg.address) +
-                                   " missing or invalid 'period' (expected "
-                                   "format: e.g., '5s', '1m', '1h', '1d')");
-      }
-      std::string periodStr = regJson["period"];
-      // Validate period format and range
-      try {
-        PeriodParser::parsePeriod(periodStr);
-      } catch (const ConfigParseException &e) {
-        throw ConfigParseException("Register at address " +
-                                   std::to_string(reg.address) +
-                                   " has invalid period: " + e.what());
-      }
-      reg.period = periodStr;
-
       // Parse enabled (defaults to true if not specified)
       if (regJson.contains("enabled") && regJson["enabled"].is_boolean()) {
         reg.enabled = regJson["enabled"];
@@ -172,6 +154,74 @@ Config ConfigParser::parse(const std::string &configPath) {
       }
 
       device.registers.push_back(reg);
+    }
+
+    // Parse ranges (optional)
+    if (deviceJson.contains("ranges") && deviceJson["ranges"].is_array()) {
+      for (const auto &rangeJson : deviceJson["ranges"]) {
+        RangeDefinition range;
+
+        if (!rangeJson.contains("start") || !rangeJson["start"].is_number()) {
+          throw ConfigParseException("Range missing or invalid 'start' in device " +
+                                     std::to_string(device.id));
+        }
+        range.start = rangeJson["start"];
+
+        if (!rangeJson.contains("count") || !rangeJson["count"].is_number()) {
+          throw ConfigParseException("Range missing or invalid 'count' in device " +
+                                     std::to_string(device.id));
+        }
+        range.count = rangeJson["count"];
+
+        if (!rangeJson.contains("period") || !rangeJson["period"].is_string()) {
+          throw ConfigParseException("Range missing or invalid 'period' in device " +
+                                     std::to_string(device.id) +
+                                     " (expected format: e.g., '5s', '1m', '1h', '1d')");
+        }
+        std::string periodStr = rangeJson["period"];
+        // Validate period format
+        try {
+          PeriodParser::parsePeriod(periodStr);
+        } catch (const ConfigParseException &e) {
+          throw ConfigParseException("Range in device " +
+                                     std::to_string(device.id) +
+                                     " has invalid period: " + e.what());
+        }
+        range.period = periodStr;
+
+        // Parse regType (defaults to holding if not specified)
+        if (rangeJson.contains("regType") && rangeJson["regType"].is_string()) {
+          range.regType = parseModbusRegisterType(rangeJson["regType"]);
+        } else {
+          range.regType = ModbusRegisterType::Holding;
+        }
+
+        device.ranges.push_back(range);
+      }
+
+      // Validate that ranges don't overlap
+      for (size_t i = 0; i < device.ranges.size(); ++i) {
+        for (size_t j = i + 1; j < device.ranges.size(); ++j) {
+          const auto &range1 = device.ranges[i];
+          const auto &range2 = device.ranges[j];
+          
+          uint16_t range1End = range1.start + range1.count;
+          uint16_t range2End = range2.start + range2.count;
+          
+          // Check for overlap: ranges overlap if one starts before the other ends
+          bool overlaps = !(range1End <= range2.start || range2End <= range1.start);
+          
+          if (overlaps) {
+            throw ConfigParseException("Overlapping ranges in device " +
+                                       std::to_string(device.id) +
+                                       ": [" + std::to_string(range1.start) +
+                                       ", " + std::to_string(range1End) +
+                                       ") overlaps with [" +
+                                       std::to_string(range2.start) +
+                                       ", " + std::to_string(range2End) + ")");
+          }
+        }
+      }
     }
 
     config.devices.push_back(device);

@@ -19,8 +19,14 @@ struct RegisterDefinition {
   ModbusRegisterType regType;
   double scale;
   bool preprocessing;
-  std::string period; // Human-readable period: "5s", "1m", "1h", "1d"
   bool enabled;       // Include register in reading cycle
+};
+
+struct RangeDefinition {
+  uint16_t start;
+  uint16_t count;
+  std::string period; // Human-readable period: "5s", "1m", "1h", "1d"
+  ModbusRegisterType regType;
 };
 
 struct ConnectionParams {
@@ -37,6 +43,7 @@ struct DeviceConfig {
   bool isZero;
   bool enabled; // Include device in reading cycle
   std::vector<RegisterDefinition> registers;
+  std::vector<RangeDefinition> ranges;
 };
 
 struct Config {

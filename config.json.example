@@ -18,37 +18,51 @@
           "address": 100,
           "name": "temperature",
           "type": "int16",
+          "regType": "holding",
           "scale": 0.1,
           "preprocessing": false,
-          "period": "5s",
           "enabled": true
         },
         {
           "address": 101,
           "name": "pressure",
           "type": "int16",
+          "regType": "holding",
           "scale": 1.0,
           "preprocessing": false,
-          "period": "30s",
           "enabled": true
         },
         {
           "address": 200,
           "name": "flow_rate",
           "type": "int32",
+          "regType": "holding",
           "scale": 0.01,
           "preprocessing": false,
-          "period": "1m",
           "enabled": true
         },
         {
           "address": 300,
           "name": "voltage",
           "type": "float32",
+          "regType": "holding",
           "scale": 1.0,
           "preprocessing": false,
-          "period": "1h",
           "enabled": false
+        }
+      ],
+      "ranges": [
+        {
+          "start": 100,
+          "count": 2,
+          "period": "5s",
+          "regType": "holding"
+        },
+        {
+          "start": 200,
+          "count": 1,
+          "period": "1m",
+          "regType": "holding"
         }
       ]
     },
@@ -67,10 +81,18 @@
           "address": 0,
           "name": "status",
           "type": "int16",
+          "regType": "input",
           "scale": 1.0,
           "preprocessing": false,
-          "period": "10s",
           "enabled": true
+        }
+      ],
+      "ranges": [
+        {
+          "start": 0,
+          "count": 1,
+          "period": "10s",
+          "regType": "input"
         }
       ]
     }

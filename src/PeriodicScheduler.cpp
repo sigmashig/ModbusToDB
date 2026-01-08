@@ -7,51 +7,49 @@ PeriodicScheduler::PeriodicScheduler()
     : startTime(std::chrono::steady_clock::now()) {
 }
 
-void PeriodicScheduler::addRegister(const RegisterDefinition& reg) {
-    if (!reg.enabled) {
-        return; // Skip disabled registers
-    }
-    
-    RegisterSchedule schedule;
-    schedule.reg = &reg;
-    schedule.period = PeriodParser::parsePeriod(reg.period);
+void PeriodicScheduler::addRange(const RangeDefinition& range) {
+    RangeSchedule schedule;
+    schedule.range = &range;
+    schedule.period = PeriodParser::parsePeriod(range.period);
     schedule.nextReadTime = std::chrono::steady_clock::now();
     
-    schedules[reg.address] = schedule;
+    schedules.push_back(schedule);
 }
 
-std::vector<const RegisterDefinition*> PeriodicScheduler::getRegistersToRead() {
-    std::vector<const RegisterDefinition*> result;
+std::vector<const RangeDefinition*> PeriodicScheduler::getRangesToRead() {
+    std::vector<const RangeDefinition*> result;
     auto now = std::chrono::steady_clock::now();
     
-    for (auto& pair : schedules) {
-        if (now >= pair.second.nextReadTime) {
-            result.push_back(pair.second.reg);
+    for (auto& schedule : schedules) {
+        if (now >= schedule.nextReadTime) {
+            result.push_back(schedule.range);
         }
     }
     
     return result;
 }
 
-void PeriodicScheduler::markRegisterRead(const RegisterDefinition& reg) {
-    auto it = schedules.find(reg.address);
-    if (it != schedules.end()) {
-        // Update next read time to current time + period
-        it->second.nextReadTime = std::chrono::steady_clock::now() + it->second.period;
+void PeriodicScheduler::markRangeRead(const RangeDefinition& range) {
+    for (auto& schedule : schedules) {
+        if (schedule.range == &range) {
+            // Update next read time to current time + period
+            schedule.nextReadTime = std::chrono::steady_clock::now() + schedule.period;
+            break;
+        }
     }
 }
 
 std::chrono::milliseconds PeriodicScheduler::getTimeUntilNextRead() const {
     if (schedules.empty()) {
-        return std::chrono::milliseconds(1000); // Default 1 second if no registers
+        return std::chrono::milliseconds(1000); // Default 1 second if no ranges
     }
     
     auto now = std::chrono::steady_clock::now();
     auto minTime = now + std::chrono::hours(24); // Start with a large value
     
-    for (const auto& pair : schedules) {
-        if (pair.second.nextReadTime < minTime) {
-            minTime = pair.second.nextReadTime;
+    for (const auto& schedule : schedules) {
+        if (schedule.nextReadTime < minTime) {
+            minTime = schedule.nextReadTime;
         }
     }
     
@@ -65,7 +63,7 @@ std::chrono::milliseconds PeriodicScheduler::getTimeUntilNextRead() const {
     return duration;
 }
 
-bool PeriodicScheduler::hasRegisters() const {
+bool PeriodicScheduler::hasRanges() const {
     return !schedules.empty();
 }
 

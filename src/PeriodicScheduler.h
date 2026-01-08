@@ -14,29 +14,29 @@ class PeriodicScheduler {
 public:
     PeriodicScheduler();
     
-    // Add register to scheduler with its period
-    void addRegister(const RegisterDefinition& reg);
+    // Add range to scheduler with its period
+    void addRange(const RangeDefinition& range);
     
-    // Get registers that need to be read now
-    std::vector<const RegisterDefinition*> getRegistersToRead();
+    // Get ranges that need to be read now
+    std::vector<const RangeDefinition*> getRangesToRead();
     
-    // Mark register as read (update next read time)
-    void markRegisterRead(const RegisterDefinition& reg);
+    // Mark range as read (update next read time)
+    void markRangeRead(const RangeDefinition& range);
     
-    // Get time until next register needs reading (for sleep optimization)
+    // Get time until next range needs reading (for sleep optimization)
     std::chrono::milliseconds getTimeUntilNextRead() const;
     
-    // Check if any registers are scheduled
-    bool hasRegisters() const;
+    // Check if any ranges are scheduled
+    bool hasRanges() const;
 
 private:
-    struct RegisterSchedule {
-        const RegisterDefinition* reg;
+    struct RangeSchedule {
+        const RangeDefinition* range;
         std::chrono::steady_clock::time_point nextReadTime;
         std::chrono::seconds period;
     };
     
-    std::map<uint16_t, RegisterSchedule> schedules;
+    std::vector<RangeSchedule> schedules;
     std::chrono::steady_clock::time_point startTime;
 };
 
