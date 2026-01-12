@@ -41,6 +41,9 @@ constexpr uint16_t REGISTER_540 = 540;
 constexpr uint16_t REGISTER_541 = 541;
 constexpr int DEVICE_ID_1 = 1;
 constexpr uint16_t MAX_BATCH_WORDS = 100;
+constexpr int REPEAT_DATA_PERIOD =
+    180; // store the same value when it is not changed during 180 periods
+         // (approx. 20*180=3600 seconds = 1 hour)
 
 std::atomic<bool> g_shutdownRequested(false);
 
@@ -103,7 +106,6 @@ createPreprocessFunction(int deviceId) {
   };
 }
 
-
 uint16_t getRegisterWordCount(const ModbusLogger::RegisterDefinition &reg) {
   if (reg.type == ModbusLogger::RegisterType::Int32 ||
       reg.type == ModbusLogger::RegisterType::Float32 ||
@@ -164,15 +166,18 @@ bool readRange(ModbusLogger::ModbusClient &modbusClient,
       break;
     }
     case ModbusLogger::ModbusRegisterType::Discrete: {
-      readSuccess = modbusClient.readDiscreteInputs(startAddress, count, result.values);
+      readSuccess =
+          modbusClient.readDiscreteInputs(startAddress, count, result.values);
       break;
     }
     case ModbusLogger::ModbusRegisterType::Input: {
-      readSuccess = modbusClient.readInputRegisters(startAddress, count, result.values);
+      readSuccess =
+          modbusClient.readInputRegisters(startAddress, count, result.values);
       break;
     }
     case ModbusLogger::ModbusRegisterType::Holding: {
-      readSuccess = modbusClient.readHoldingRegisters(startAddress, count, result.values);
+      readSuccess =
+          modbusClient.readHoldingRegisters(startAddress, count, result.values);
       break;
     }
     }
@@ -206,8 +211,9 @@ bool readRange(ModbusLogger::ModbusClient &modbusClient,
 
   if (!success) {
     std::cerr << "Error: Failed to read range starting at address "
-              << range.start << " (count: " << count << ") after " << MAX_RETRIES
-              << " retries (total " << (MAX_RETRIES + 1) << " attempts)"
+              << range.start << " (count: " << count << ") after "
+              << MAX_RETRIES << " retries (total " << (MAX_RETRIES + 1)
+              << " attempts)"
               << ": " << lastError << std::endl;
     return false;
   }
@@ -217,8 +223,8 @@ bool readRange(ModbusLogger::ModbusClient &modbusClient,
 
   if (verbose) {
     uint16_t endAddress = range.start + count - 1;
-    std::cerr << "Reading range: " << range.start << "-"
-              << endAddress << " (count: " << count << ")" << std::endl;
+    std::cerr << "Reading range: " << range.start << "-" << endAddress
+              << " (count: " << count << ")" << std::endl;
   }
 
   result.success = true;
@@ -640,11 +646,11 @@ bool storeValueIfChanged(
     const std::chrono::system_clock::time_point &batchTimestamp) {
   auto now = std::chrono::steady_clock::now();
 
-  // Check if 10 periods have passed since last update
+  // Check if REPEAT_DATA_PERIOD periods have passed since last update
   bool forceWrite = false;
   if (lastUpdateTimes.find(registerName) != lastUpdateTimes.end()) {
     auto timeSinceLastUpdate = now - lastUpdateTimes[registerName];
-    auto tenPeriods = std::chrono::seconds(period.count() * 10);
+    auto tenPeriods = std::chrono::seconds(period.count() * REPEAT_DATA_PERIOD);
     if (timeSinceLastUpdate >= tenPeriods) {
       forceWrite = true;
     }
@@ -669,7 +675,7 @@ bool storeValueIfChanged(
   // Insert into database
   try {
     pqxx::work txn(dbManager.getConnection());
-    
+
     // Convert batch timestamp to PostgreSQL ISO 8601 format
     auto timeT = std::chrono::system_clock::to_time_t(batchTimestamp);
     auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -679,15 +685,15 @@ bool storeValueIfChanged(
     char timestampStr[64];
     std::snprintf(timestampStr, sizeof(timestampStr),
                   "%04d-%02d-%02d %02d:%02d:%02d.%03ld+00",
-                  tmInfo->tm_year + 1900, tmInfo->tm_mon + 1,
-                  tmInfo->tm_mday, tmInfo->tm_hour, tmInfo->tm_min,
-                  tmInfo->tm_sec, ms.count());
-    
+                  tmInfo->tm_year + 1900, tmInfo->tm_mon + 1, tmInfo->tm_mday,
+                  tmInfo->tm_hour, tmInfo->tm_min, tmInfo->tm_sec, ms.count());
+
     std::ostringstream insertQuery;
     insertQuery << "INSERT INTO " << quoteIdentifier(TABLE_NAME)
                 << " (device_id, timestamp, register_name, value) VALUES ("
-                << deviceId << ", " << txn.quote(timestampStr) << "::timestamptz, "
-                << txn.quote(registerName) << ", " << txn.quote(value) << ")";
+                << deviceId << ", " << txn.quote(timestampStr)
+                << "::timestamptz, " << txn.quote(registerName) << ", "
+                << txn.quote(value) << ")";
     txn.exec(insertQuery.str());
     txn.commit();
 
@@ -811,7 +817,7 @@ int runSingleMode(const ModbusLogger::Config &config, int deviceId,
   std::map<uint16_t, std::vector<uint16_t>> registerValues;
   std::chrono::system_clock::time_point batchTimestamp;
   bool timestampCaptured = false;
-  
+
   for (const auto &batch : batches) {
     std::vector<RegisterReadResult> batchResults;
     if (!readBatch(modbusClient, batch, deviceConfig, verbose, batchResults)) {
@@ -906,10 +912,9 @@ int runSingleMode(const ModbusLogger::Config &config, int deviceId,
 
   // Store changed values
   // Use batch timestamp for all registers (captured when batches were read)
-  auto batchTimestampForStorage = timestampCaptured 
-      ? batchTimestamp 
-      : std::chrono::system_clock::now();
-  
+  auto batchTimestampForStorage =
+      timestampCaptured ? batchTimestamp : std::chrono::system_clock::now();
+
   for (size_t i = 0; i < processedValues.size(); ++i) {
     if (processedValues[i].address != registers[i].address) {
       std::cerr << "Error: Register order mismatch" << std::endl;
@@ -921,7 +926,8 @@ int runSingleMode(const ModbusLogger::Config &config, int deviceId,
     auto period = std::chrono::seconds(1);
     storeValueIfChanged(dbManager, deviceId, processedValues[i].name,
                         processedValues[i].processedValue, lastValues,
-                        lastUpdateTimes, period, "1s", batchTimestampForStorage);
+                        lastUpdateTimes, period, "1s",
+                        batchTimestampForStorage);
   }
 
   dbManager.disconnect();
@@ -1076,8 +1082,8 @@ int runContinuousMode(const ModbusLogger::Config &config, int deviceId,
     // Process each range
     for (const auto *range : rangesToRead) {
       RangeReadResult rangeResult;
-      if (!readRange(modbusClient, *range, range->regType,
-                     deviceConfig, verbose, rangeResult)) {
+      if (!readRange(modbusClient, *range, range->regType, deviceConfig,
+                     verbose, rangeResult)) {
         // Continue to next range on error
         continue;
       }
@@ -1104,14 +1110,15 @@ int runContinuousMode(const ModbusLogger::Config &config, int deviceId,
           }
 
           // Extract values for this register
-          std::vector<uint16_t> regValues(
-              rangeResult.values.begin() + offset,
-              rangeResult.values.begin() + offset + wordCount);
+          std::vector<uint16_t> regValues(rangeResult.values.begin() + offset,
+                                          rangeResult.values.begin() + offset +
+                                              wordCount);
 
           // Process value
           std::vector<ModbusLogger::RegisterDefinition> singleReg;
           singleReg.push_back(reg);
-          auto processedValues = processor.processRegisters(singleReg, regValues);
+          auto processedValues =
+              processor.processRegisters(singleReg, regValues);
 
           if (processedValues.empty()) {
             continue;
@@ -1122,7 +1129,8 @@ int runContinuousMode(const ModbusLogger::Config &config, int deviceId,
           auto period = ModbusLogger::PeriodParser::parsePeriod(range->period);
           storeValueIfChanged(dbManager, deviceId, processedValues[0].name,
                               processedValues[0].processedValue, lastValues,
-                              lastUpdateTimes, period, range->period, rangeTimestamp);
+                              lastUpdateTimes, period, range->period,
+                              rangeTimestamp);
         }
       }
 
