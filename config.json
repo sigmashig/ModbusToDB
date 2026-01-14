@@ -24,7 +24,7 @@
         {
           "start": 614,
           "count": 66,
-          "period": "10s",
+          "period": "20s",
           "regType": "holding"
         }
       ],
